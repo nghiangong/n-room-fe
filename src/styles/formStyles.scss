@@ -1,0 +1,25 @@
+.customForm {
+  .ant-input {
+    background-color: #ffffff;
+    color: #111111;
+    cursor: default;
+  }
+  .ant-select-selector {
+    background-color: #ffffff !important;
+    color: #111111 !important;
+    cursor: default !important;
+  }
+  .ant-input-number-input {
+    background-color: #ffffff !important;
+    color: #111111 !important;
+    cursor: default !important;
+  }
+  .ant-picker {
+    background-color: #ffffff !important;
+    cursor: default !important;
+    input {
+      color: #111111 !important;
+      cursor: default !important;
+    }
+  }
+}

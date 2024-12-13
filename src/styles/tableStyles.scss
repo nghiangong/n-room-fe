@@ -1,0 +1,27 @@
+.customTable {
+  max-height: 100%;
+  overflow: "hidden";
+  .ant-spin-nested-loading {
+    height: 100%;
+
+    .ant-spin-container {
+      height: 100%;
+
+      .ant-table {
+        height: 100%;
+
+        .ant-table-container {
+          height: 100%;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          .ant-table-header {
+          }
+          .ant-table-body {
+            flex: 1;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+.customCard {
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  .ant-card-head {
+  }
+  .ant-card-body {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+}
