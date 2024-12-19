@@ -1,29 +1,32 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-
-const decode = (token) =>
-  JSON.parse(decodeURIComponent(escape(atob(token.split(".")[1]))));
+import { decodeToken } from "../utils";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [role, setRole] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("token"));
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (token) {
-      setRole(decode(token).scope);
+      setRole(decodeToken(token).scope);
+    } else {
+      setRole(null);
     }
   }, [token]);
 
   const login = (userToken) => {
     localStorage.setItem("token", userToken);
     setToken(userToken);
+    navigate("/");
   };
 
   const logout = () => {
     localStorage.removeItem("token");
-    setRole(null);
     setToken(null);
+    // navigate("/");
   };
 
   if (token && role == null) return <div>Loading...</div>;
@@ -35,5 +38,9 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Custom hook để sử dụng AuthContext
 export const useAuth = () => useContext(AuthContext);
+
+export const useLogout = () => {
+  const { logout } = useAuth();
+  return logout;
+};

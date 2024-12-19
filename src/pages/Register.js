@@ -30,19 +30,20 @@ const Register = () => {
     } finally {
     }
   };
+
   return (
-    <div style={{ maxWidth: "400px", margin: "auto", padding: "50px" }}>
+    <div style={{ maxWidth: "400px", margin: "auto", padding: "auto" }}>
       <Title level={2}>Đăng Ký</Title>
       <Form name="register" onFinish={onFinish} layout="vertical">
         <Form.Item
-          label="Username"
+          label="Tên đăng nhập"
           name="username"
           rules={[{ required: true, message: "Vui lòng nhập tên người dùng!" }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Personal ID Number"
+          label="CCCD"
           name="personalIdNumber"
           rules={[
             {
@@ -58,14 +59,14 @@ const Register = () => {
           <Input />
         </Form.Item>
         <Form.Item
-          label="Full Name"
+          label="Họ và tên"
           name="fullName"
           rules={[{ required: true, message: "Vui lòng nhập họ và tên!" }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Phone Number"
+          label="Số điện thoại"
           name="phoneNumber"
           rules={[
             { required: true, message: "Vui lòng nhập số điện thoại!" },
@@ -78,14 +79,27 @@ const Register = () => {
           <Input />
         </Form.Item>
         <Form.Item
-          label="Password"
+          label="Email"
+          name="email"
+          rules={[
+            { required: true, message: "Vui lòng nhập email!" },
+            {
+              type: "email",
+              message: "Email không hợp lệ!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Mật khẩu"
           name="password"
           rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
         >
           <Input.Password />
         </Form.Item>
         <Form.Item
-          label="Confirm Password"
+          label="Xác nhận mật khẩu"
           name="confirmPassword"
           rules={[{ required: true, message: "Vui lòng xác nhận mật khẩu!" }]}
         >

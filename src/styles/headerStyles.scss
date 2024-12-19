@@ -1,0 +1,22 @@
+.customHeader {
+  background-color: #12303d;
+  .logo {
+    color: #b6dddc;
+    font-family: Sans-Serif;
+    font-weight: 600;
+    font-size: 27px;
+  }
+  .appName {
+    color: white;
+    font-size: 18px;
+  }
+  .user {
+    cursor: pointer;
+    height: "35px";
+  }
+
+  .rightCorner {
+    float: right;
+    color: white;
+  }
+}

@@ -8,12 +8,12 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import React, { useState } from "react";
-import viVN from "antd/locale/vi_VN";
 import apiClient from "../../services/apiClient";
 
+import viVN from "antd/locale/vi_VN";
 dayjs.locale("vi");
 
-const CreateInvoice = ({ houseNames, refresh, close }) => {
+const CInvoice = ({ houseNames, refresh, close }) => {
   const [houseId, setHouseId] = useState(null);
   const [date, setDate] = useState(dayjs().endOf("month"));
 
@@ -26,7 +26,7 @@ const CreateInvoice = ({ houseNames, refresh, close }) => {
       refresh();
       close();
     } catch (error) {
-      message.error(error.message);
+      if (error?.message) message.error(error.message);
       console.log("Tạo không thành công:", error.message);
     }
   };
@@ -34,7 +34,7 @@ const CreateInvoice = ({ houseNames, refresh, close }) => {
   return (
     <>
       <Card
-        title="Tạo hóa đơn mới"
+        title="Tạo hóa đơn hàng tháng"
         className="customCard"
         style={{ maxHeight: "70vh", width: 400 }}
       >
@@ -79,4 +79,4 @@ const CreateInvoice = ({ houseNames, refresh, close }) => {
   );
 };
 
-export default CreateInvoice;
+export default CInvoice;

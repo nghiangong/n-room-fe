@@ -6,10 +6,10 @@ const { Option } = Select;
 
 const titles = {
   CREATE: "Thêm mới phòng",
-  EDIT: "Chỉnh sửa phòng",
+  UPDATE: "Chỉnh sửa phòng",
 };
 
-const RoomEditor = ({
+const CURoom = ({
   roomDetail,
   houseNames,
   refresh,
@@ -113,4 +113,4 @@ const RoomEditor = ({
     </Card>
   );
 };
-export default RoomEditor;
+export default CURoom;

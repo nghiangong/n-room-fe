@@ -7,6 +7,8 @@ import Login from "./pages/Login";
 import { Content } from "antd/es/layout/layout";
 import Header from "./layouts/header/Header";
 import Register from "./pages/Register";
+import Home from "./pages/Home";
+
 import ManagerDashboard from "./pages/manager/Dashboard";
 import Houses from "./pages/manager/Houses";
 import Rooms from "./pages/manager/Rooms";
@@ -14,18 +16,22 @@ import Invoices from "./pages/manager/Invoices";
 import Test from "./pages/manager/Test";
 import Contracts from "./pages/manager/Contracts";
 import ElecWater from "./pages/manager/ElecWater";
+
 import Tenants from "./pages/manager/Tenants";
 import TenantDashboard from "./pages/tenant/Dashboard";
 import TenantRoom from "./pages/tenant/Room";
+import TenantContracts from "./pages/tenant/Contracts";
+import TenantInvoices from "./pages/tenant/Invoices";
+import TenantMembers from "./pages/tenant/Members";
 
 const ProtectedRoute = () => {
   const { role } = useAuth();
 
   if (role == "ROLE_MANAGER") {
-    return <ManagerDashboard />; // Chuyển hướng nếu không có quyền
+    return <ManagerDashboard />;
   }
-  if (role == "ROLE_TENANT") {
-    return <TenantDashboard />; // Chuy
+  if (role == "ROLE_TENANT" || role == "ROLE_REP_TENANT") {
+    return <TenantDashboard />;
   }
 
   // return <Navigate to="/login" replace />; // Render nội dung nếu có quyền
@@ -34,8 +40,8 @@ const ProtectedRoute = () => {
 function App() {
   return (
     <>
-      <AuthProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
           <Layout style={{ height: "100vh" }}>
             <Header />
             <Content>
@@ -53,13 +59,16 @@ function App() {
                 </Route>
                 <Route path="tenant" element={<ProtectedRoute />}>
                   <Route path="room" element={<TenantRoom />} />
+                  <Route path="contracts" element={<TenantContracts />} />
+                  <Route path="invoices" element={<TenantInvoices />} />
+                  <Route path="members" element={<TenantMembers />} />
                 </Route>
-                <Route path="*" element={<div>404 Not Found</div>} />
+                <Route path="*" element={<Home />} />
               </Routes>
             </Content>
           </Layout>
-        </BrowserRouter>
-      </AuthProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </>
   );
 }

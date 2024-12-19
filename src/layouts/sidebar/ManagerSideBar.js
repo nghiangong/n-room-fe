@@ -32,7 +32,7 @@ const items = [
       },
       {
         key: "/elecwater",
-        label: <Link to="elecwater">Quản lý chốt điện nước</Link>,
+        label: <Link to="elecwater">Quản lý số điện/nước</Link>,
       },
     ],
   },

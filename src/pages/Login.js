@@ -2,14 +2,16 @@ import React, { useEffect } from "react";
 import { Button, Form, Input, message, Typography } from "antd";
 import { useAuth } from "../context/AuthContext";
 import apiClient from "../services/apiClient";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
 const Login = () => {
   const { login, logout, role } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // if (role) logout();
+    if (role) navigate("/");
   }, []);
 
   const onFinish = async (values) => {
@@ -21,7 +23,7 @@ const Login = () => {
       message.success("Đăng nhập thành công!");
     } catch (error) {
       console.log(error);
-      message.error("Tên người dùng hoặc mật khẩu không hợp lệ!");
+      if (error?.message) message.error(error.message);
     }
   };
 

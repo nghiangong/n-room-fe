@@ -1,13 +1,15 @@
-import { Card, Descriptions, Table, Typography } from "antd";
+import { Card, Descriptions, message, Table, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 import { InvoiceTag } from "../../tags";
+import TenantDes from "../users/UserDes";
+import apiClient from "../../services/apiClient";
 
 const formatCurrency = (value) =>
   value.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 
 const { Text } = Typography;
 
-const Invoice = ({ invoiceDetail }) => {
+const RInvoice = ({ invoiceDetail }) => {
   const columns = [
     {
       title: "Tên dịch vụ",
@@ -84,6 +86,8 @@ const Invoice = ({ invoiceDetail }) => {
     },
   ];
 
+  useEffect(() => {}, []);
+
   return (
     <Card title="Chi tiết hóa đơn" style={{ width: "700px" }}>
       <div
@@ -95,30 +99,8 @@ const Invoice = ({ invoiceDetail }) => {
           column={3}
           style={{ marginBottom: "20px" }}
         ></Descriptions>
-        <Table
-          style={{ marginTop: "10px" }}
-          size="small"
-          columns={[
-            {
-              title: "Khách thuê",
-              dataIndex: "fullName",
-              key: "fullName",
-            },
-            {
-              title: "CMND/CCCD",
-              dataIndex: "personalIdNumber",
-              key: "personalIdNumber",
-            },
-            {
-              title: "Số điện thoại",
-              dataIndex: "phoneNumber",
-              key: "phoneNumber",
-            },
-          ]}
-          dataSource={[invoiceDetail.repTenant]}
-          rowKey="id" // Cột "id" làm key cho mỗi dòng trong bảng
-          pagination={false} // Tắt phân trang để chỉ hiển thị 1 phần tử
-        />
+        <TenantDes user={invoiceDetail?.repTenant} />
+
         <Table
           style={{ marginTop: "10px" }}
           columns={columns}
@@ -144,4 +126,4 @@ const Invoice = ({ invoiceDetail }) => {
   );
 };
 
-export default Invoice;
+export default RInvoice;

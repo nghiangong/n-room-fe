@@ -23,7 +23,6 @@ import viVN from "antd/locale/vi_VN";
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import EditRecord from "../../components/elecwater/EditRecord";
-import EnterRecords from "../../components/elecwater/EnterRecords";
 import { roomStatus } from "../../statuses";
 import { RoomTag } from "../../tags";
 
@@ -45,21 +44,6 @@ const ElecWater = () => {
         recordKey={recordKey}
         close={close}
         refresh={refresh}
-      />
-    );
-  };
-
-  const handleEnterElecRecords = (mode) => {
-    console.log(mode);
-    const houseName = houseNames.find((item) => item.id === houseId).name;
-    setModalChildren(
-      <EnterRecords
-        houseName={houseName}
-        date={date}
-        records={records}
-        mode={mode}
-        refresh={refresh}
-        close={close}
       />
     );
   };
@@ -132,16 +116,14 @@ const ElecWater = () => {
               >
                 {text}
               </span>
-              {text && (
-                <Tooltip title="Chỉnh sửa">
-                  <Button
-                    shape="circle"
-                    type="link"
-                    icon={<EditFilled />}
-                    onClick={() => handleEditClick(record, "elecPrev")}
-                  />
-                </Tooltip>
-              )}
+              <Tooltip title="Chỉnh sửa">
+                <Button
+                  shape="circle"
+                  type="link"
+                  icon={<EditFilled />}
+                  onClick={() => handleEditClick(record, "elecPrev")}
+                />
+              </Tooltip>
             </>
           ),
         },
@@ -161,16 +143,14 @@ const ElecWater = () => {
               >
                 {text}
               </span>
-              {text && (
-                <Tooltip title="Chỉnh sửa">
-                  <Button
-                    shape="circle"
-                    type="link"
-                    icon={<EditFilled />}
-                    onClick={() => handleEditClick(record, "elecCur")}
-                  />
-                </Tooltip>
-              )}
+              <Tooltip title="Chỉnh sửa">
+                <Button
+                  shape="circle"
+                  type="link"
+                  icon={<EditFilled />}
+                  onClick={() => handleEditClick(record, "elecCur")}
+                />
+              </Tooltip>
             </>
           ),
         },
@@ -198,16 +178,14 @@ const ElecWater = () => {
               >
                 {text}
               </span>
-              {text && (
-                <Tooltip title="Chỉnh sửa">
-                  <Button
-                    shape="circle"
-                    type="link"
-                    icon={<EditFilled />}
-                    onClick={() => handleEditClick(record, "waterPrev")}
-                  />
-                </Tooltip>
-              )}
+              <Tooltip title="Chỉnh sửa">
+                <Button
+                  shape="circle"
+                  type="link"
+                  icon={<EditFilled />}
+                  onClick={() => handleEditClick(record, "waterPrev")}
+                />
+              </Tooltip>
             </>
           ),
         },
@@ -227,16 +205,14 @@ const ElecWater = () => {
               >
                 {text}
               </span>
-              {text && (
-                <Tooltip title="Chỉnh sửa">
-                  <Button
-                    shape="circle"
-                    type="link"
-                    icon={<EditFilled />}
-                    onClick={() => handleEditClick(record, "waterCur")}
-                  />
-                </Tooltip>
-              )}
+              <Tooltip title="Chỉnh sửa">
+                <Button
+                  shape="circle"
+                  type="link"
+                  icon={<EditFilled />}
+                  onClick={() => handleEditClick(record, "waterCur")}
+                />
+              </Tooltip>
             </>
           ),
         },
@@ -249,7 +225,7 @@ const ElecWater = () => {
       const response = await apiClient.get("/houses/nameList");
       setHouseNames(response);
     } catch (error) {
-      message.error("Lỗi khi lấy danh sách tên tòa nhà!");
+      if (error?.message) message.error(error.message);
       console.error("Error fetching house name list:", error);
     }
   };
@@ -324,25 +300,6 @@ const ElecWater = () => {
           </Space>
         }
         className="customCard"
-        extra={
-          houseId &&
-          date && (
-            <Space>
-              <Button
-                type="primary"
-                onClick={() => handleEnterElecRecords("ELEC")}
-              >
-                Nhập số điện
-              </Button>
-              <Button
-                type="primary"
-                onClick={() => handleEnterElecRecords("WATER")}
-              >
-                Nhập số nước
-              </Button>
-            </Space>
-          )
-        }
       >
         <Table
           className="customTable"
@@ -351,6 +308,7 @@ const ElecWater = () => {
           dataSource={records}
           loading={loading}
           pagination={false}
+          scroll={{ y: true }}
           rowKey={(record) => record.roomId}
         />
       </Card>

@@ -3,8 +3,10 @@ import { message, Table, Card, Button, Dropdown, Modal, Input } from "antd";
 import {
   CloseCircleOutlined,
   EditOutlined,
-  InfoCircleOutlined,
+  InfoOutlined,
   MoreOutlined,
+  PauseCircleOutlined,
+  PlayCircleOutlined,
   PlusOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
@@ -13,9 +15,10 @@ import apiClient from "../../services/apiClient";
 import "../../styles/tableStyles.scss";
 import "../../styles/modalStyles.scss";
 import "../../styles/cardStyles.scss";
-import RoomEditor from "../../components/rooms/RoomEditor";
 import { roomStatus } from "../../statuses";
-import Room from "../../components/rooms/Room";
+import RRoom from "../../components/rooms/RRoom";
+import CURoom from "../../components/rooms/CURoom";
+import { get } from "../../utils";
 
 const { Search } = Input;
 
@@ -29,30 +32,58 @@ const Rooms = () => {
     {
       key: "detail",
       label: "Chi tiết phòng trọ",
-      icon: <InfoCircleOutlined />,
+      icon: <InfoOutlined />,
+      style: { color: "#1677ff" },
     },
-    { key: "edit", label: "Sửa phòng", icon: <EditOutlined /> },
+    {
+      key: "edit",
+      label: "Sửa phòng",
+      icon: <EditOutlined />,
+      style: { color: "orange" },
+    },
+    {
+      key: "lock",
+      label: "Dừng hoạt động",
+      icon: <PauseCircleOutlined />,
+      style: { color: "orange" },
+    },
+    {
+      key: "unlock",
+      label: "Hoạt động",
+      icon: <PlayCircleOutlined />,
+      style: { color: "green" },
+    },
   ];
 
   const handleActionClick = (actionKey, room) => {
     switch (actionKey) {
       case "detail":
-        console.log("Xem chi tiết phòng:", room);
         setModalChildren(
-          <Room roomDetail={room} close={close} refresh={refresh} />
+          <RRoom roomDetail={room} close={close} refresh={refresh} />
+        );
+        break;
+      case "create":
+        setModalChildren(
+          <CURoom
+            houseNames={houseNames}
+            close={close}
+            refresh={refresh}
+            mode="CREATE"
+          />
         );
         break;
       case "edit":
-        console.log("Sửa thông tin phòng:", room);
         setModalChildren(
-          <RoomEditor
+          <CURoom
             roomDetail={room}
             houseNames={houseNames}
             refresh={refresh}
             close={close}
-            mode="EDIT"
+            mode="UPDATE"
           />
         );
+        break;
+      case "lock":
         break;
       default:
         console.log("Hành động không xác định:", actionKey, room);
@@ -60,8 +91,7 @@ const Rooms = () => {
   };
 
   const columns = [
-    { title: "Id", dataIndex: "id", key: "id", width: 50 },
-    { title: "Trạng thái", dataIndex: "status", key: "status", width: "100"},
+    { title: "ID", dataIndex: "id", key: "id", width: 50 },
     {
       title: "Tòa nhà",
       dataIndex: ["house", "name"],
@@ -141,19 +171,35 @@ const Rooms = () => {
       width: 100,
       fixed: "right",
       align: "center",
-      render: (text, record) => (
-        <Dropdown
-          menu={{
-            items,
-            onClick: ({ key }) => handleActionClick(key, record),
-          }}
-          placement="bottomLeft"
-        >
-          <MoreOutlined
-            style={{ cursor: "pointer", fontSize: "20px", color: "#08c" }}
-          />
-        </Dropdown>
-      ),
+      render: (text, record) => {
+        const { status } = record;
+        const items2 = (() => {
+          switch (status) {
+            case "AVAILABLE":
+              return get(items, ["detail", "edit", "lock"]);
+            case "OCCUPIED":
+            case "SOON_AVAILABLE":
+              return get(items, ["detail", "edit"]);
+            case "INACTIVE":
+              return get(items, ["unlock"]);
+            default:
+              return [];
+          }
+        })();
+        return (
+          <Dropdown
+            menu={{
+              items: items2,
+              onClick: ({ key }) => handleActionClick(key, record),
+            }}
+            placement="bottom"
+          >
+            <MoreOutlined
+              style={{ cursor: "pointer", fontSize: "20px", color: "#08c" }}
+            />
+          </Dropdown>
+        );
+      },
     },
   ];
 
@@ -163,7 +209,7 @@ const Rooms = () => {
       const response = await apiClient.get("/rooms");
       setRooms(response);
     } catch (error) {
-      message.error("Lỗi khi lấy danh sách phòng!");
+      if (error?.message) message.error(error.message);
       console.error("Error fetching room list:", error);
     } finally {
       setLoading(false);
@@ -175,7 +221,7 @@ const Rooms = () => {
       const response = await apiClient.get("/houses/nameList");
       setHouseNames(response);
     } catch (error) {
-      message.error("Lỗi khi lấy danh sách tên tòa nhà!");
+      if (error?.message) message.error(error.message);
       console.error("Error fetching house name list:", error);
     }
   };
@@ -202,16 +248,7 @@ const Rooms = () => {
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => {
-              setModalChildren(
-                <RoomEditor
-                  houseNames={houseNames}
-                  refresh={refresh}
-                  close={close}
-                  mode="CREATE"
-                />
-              );
-            }}
+            onClick={() => handleActionClick("create")}
           >
             Thêm phòng
           </Button>

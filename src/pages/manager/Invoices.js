@@ -13,16 +13,18 @@ import {
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
-  InfoCircleOutlined,
+  InfoOutlined,
   MoreOutlined,
+  RedoOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import apiClient from "../../services/apiClient";
 import { invoiceStatus } from "../../statuses";
-import Invoice from "../../components/invoices/Invoice";
+import Invoice from "../../components/invoices/RInvoice";
 import { InvoiceTag } from "../../tags";
-import CreateInvoice from "../../components/invoices/CreateInvoice";
+import CreateInvoice from "../../components/invoices/CInvoice";
+import { get } from "../../utils";
 
 const { Search } = Input;
 
@@ -34,32 +36,55 @@ const Invoices = () => {
   const [houseNames, setHouseNames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalChildren, setModalChildren] = useState(null);
-  const [date, setDate] = useState();
-  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const items = [
+    {
+      key: "detail",
+      label: "Chi tiết hóa đơn",
+      icon: <InfoOutlined />,
+      style: { color: "#1677ff" },
+    },
     {
       key: "confirmPayment",
       label: "Xác nhận thanh toán",
       icon: <CheckCircleOutlined />,
+      style: { color: "green" },
     },
-    { key: "detail", label: "Chi tiết hóa đơn", icon: <InfoCircleOutlined /> },
+    {
+      key: "recreate",
+      label: "Tạo lại",
+      icon: <RedoOutlined />,
+      style: { color: "#fd7e14" },
+    },
   ];
 
-  const handleActionClick = (actionKey, invoice) => {
+  const handleActionClick = async (actionKey, invoice) => {
     switch (actionKey) {
       case "detail":
         console.log("Xem chi tiết:", invoice);
         setModalChildren(<Invoice invoiceDetail={invoice} />);
         break;
-      case "edit":
-        console.log("Sửa thông tin nhà:", invoice);
-        break;
-      case "roomList":
-        console.log("Xem danh sách phòng:", invoice);
-        break;
-      case "addRoom":
-        console.log("Thêm phòng vào nhà:", invoice);
+      case "confirmPayment":
+        Modal.confirm({
+          title: "Xác nhận thanh toán",
+          content: "Bạn có chắc chắn muốn xác nhận đã thanh toán không?",
+          okText: "Xác nhận",
+          cancelText: "Hủy",
+          onOk: async () => {
+            try {
+              await apiClient.put(`invoices/${invoice.id}/paid`);
+              refresh();
+              close();
+              message.success("Xác nhận thanh toán thành công!");
+            } catch (error) {
+              console.error("Save failed:", error);
+              if (error?.message) message.error(error.message);
+            }
+          },
+          onCancel: () => {
+            console.log("Hủy xác nhận thanh toán.");
+          },
+        });
         break;
       default:
         console.log("Hành động không xác định:", actionKey, invoice);
@@ -67,7 +92,7 @@ const Invoices = () => {
   };
 
   const columns = [
-    { title: "Id", dataIndex: "id", key: "id", width: 50 },
+    { title: "ID", dataIndex: "id", key: "id", width: 50 },
     {
       title: "Tòa nhà",
       dataIndex: ["house", "name"],
@@ -181,19 +206,34 @@ const Invoices = () => {
       width: 100,
       fixed: "right",
       align: "center",
-      render: (text, record) => (
-        <Dropdown
-          menu={{
-            items,
-            onClick: ({ key }) => handleActionClick(key, record),
-          }}
-          placement="bottomLeft"
-        >
-          <MoreOutlined
-            style={{ cursor: "pointer", fontSize: "20px", color: "#08c" }}
-          />
-        </Dropdown>
-      ),
+      render: (text, record) => {
+        const { status } = record;
+        const items2 = (() => {
+          switch (status) {
+            case "PAID":
+              return get(items, ["detail"]);
+            case "UNPAID":
+              return get(items, ["detail", "confirmPayment", "recreate"]);
+            case "CANCELLED":
+              return get(items, ["detail"]);
+            default:
+              return [];
+          }
+        })();
+        return (
+          <Dropdown
+            menu={{
+              items: items2,
+              onClick: ({ key }) => handleActionClick(key, record),
+            }}
+            placement="bottom"
+          >
+            <MoreOutlined
+              style={{ cursor: "pointer", fontSize: "20px", color: "#08c" }}
+            />
+          </Dropdown>
+        );
+      },
     },
   ];
 
@@ -203,7 +243,7 @@ const Invoices = () => {
       setInvoices(response);
     } catch (error) {
       console.error("Error fetching invoice list:", error);
-      message.error("Lỗi khi tải danh sách hóa đơn");
+      if (error?.message) message.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -214,7 +254,7 @@ const Invoices = () => {
       const response = await apiClient.get("/houses/nameList");
       setHouseNames(response);
     } catch (error) {
-      message.error("Lỗi khi lấy danh sách tên tòa nhà!");
+      if (error?.message) message.error(error.message);
       console.error("Error fetching house name list:", error);
     }
   };

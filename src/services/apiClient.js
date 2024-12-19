@@ -1,4 +1,6 @@
+import { message } from "antd";
 import axios from "axios";
+import { useLogout } from "../context/AuthContext";
 
 const apiClient = axios.create({
   baseURL: "http://localhost:8080",
@@ -26,12 +28,19 @@ apiClient.interceptors.response.use(
     return response.data.result;
   },
   (error) => {
-    if (error.response.data.code === 16) {
-      localStorage.removeItem("token");
-      window.location.replace("/login");
+    if (!error.response) {
+      console.error(error.message);
+      message.error(
+        "Không thể kết nối tới server. Vui lòng kiểm tra kết nối mạng."
+      );
+    } else {
+      if (error.response.data.code === 16) {
+        const logout = useLogout();
+        logout();
+      }
+      console.error("Response error:", error.response.data.message);
+      return Promise.reject(error.response.data);
     }
-    console.error("Response error:", error.response.data.message);
-    return Promise.reject(error.response.data);
   }
 );
 

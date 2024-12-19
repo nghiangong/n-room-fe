@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { message, Table, Card, Button, Dropdown, Modal, Input } from "antd";
 import {
+  ArrowRightOutlined,
   CloseCircleOutlined,
+  CloseOutlined,
   EditOutlined,
-  InfoCircleOutlined,
+  InfoOutlined,
+  LogoutOutlined,
   MoreOutlined,
   PlusOutlined,
   SearchOutlined,
@@ -15,6 +18,10 @@ import { ContractTag } from "../../tags";
 import { contractStatus } from "../../statuses";
 import dayjs from "dayjs";
 import Contract from "../../components/contracts/Contract";
+import RContract from "../../components/contracts/RContract";
+import StopContract from "../../components/contracts/StopContract";
+import CCheckoutInvoice from "../../components/contracts/CCheckoutInvoice";
+import { get } from "../../utils";
 
 const { Search } = Input;
 
@@ -28,23 +35,33 @@ const Contracts = () => {
     {
       key: "detail",
       label: "Chi tiết hợp đồng",
-      icon: <InfoCircleOutlined />,
+      icon: <InfoOutlined />,
+      style: { color: "#1677ff" },
     },
-    { key: "edit", label: "Sửa hợp đồng", icon: <EditOutlined /> },
+    {
+      key: "edit",
+      label: "Sửa hợp đồng",
+      icon: <EditOutlined />,
+      style: { color: "#ffc107" },
+    },
+    {
+      key: "checkout",
+      label: "Trả phòng",
+      icon: <ArrowRightOutlined />,
+      style: { color: "#ffc107" },
+    },
+    {
+      key: "stop",
+      label: "Kết thúc",
+      icon: <CloseOutlined />,
+      style: { color: "#fd7e14" },
+    },
   ];
 
   const handleActionClick = (actionKey, contract) => {
     switch (actionKey) {
       case "detail":
-        setModalChildren(
-          <Contract
-            contractDetail={contract}
-            houseNames={houseNames}
-            close={close}
-            refresh={refresh}
-            mode="VIEW"
-          />
-        );
+        setModalChildren(<RContract contractDetail={contract} />);
         break;
       case "edit":
         setModalChildren(
@@ -53,7 +70,31 @@ const Contracts = () => {
             houseNames={houseNames}
             close={close}
             refresh={refresh}
-            mode="EDIT"
+            mode="UPDATE"
+          />
+        );
+        break;
+      case "create":
+        setModalChildren(
+          <Contract
+            houseNames={houseNames}
+            refresh={refresh}
+            close={close}
+            mode="CREATE"
+          />
+        );
+        break;
+      case "stop":
+        setModalChildren(
+          <StopContract contract={contract} close={close} refresh={refresh} />
+        );
+        break;
+      case "checkout":
+        setModalChildren(
+          <CCheckoutInvoice
+            contractDetail={contract}
+            close={close}
+            refresh={refresh}
           />
         );
         break;
@@ -63,12 +104,12 @@ const Contracts = () => {
   };
 
   const columns = [
-    { title: "Id", dataIndex: "id", key: "id", width: 50 },
+    { title: "ID", dataIndex: "id", key: "id", width: 50 },
     {
       title: "Tòa nhà",
       dataIndex: ["house", "name"],
       key: "houseName",
-      filters: houseNames.map((houseName) => ({
+      filters: houseNames?.map((houseName) => ({
         value: houseName.name,
         text: houseName.name,
       })),
@@ -157,19 +198,37 @@ const Contracts = () => {
       width: 100,
       fixed: "right",
       align: "center",
-      render: (text, record) => (
-        <Dropdown
-          menu={{
-            items,
-            onClick: ({ key }) => handleActionClick(key, record),
-          }}
-          placement="bottomLeft"
-        >
-          <MoreOutlined
-            style={{ cursor: "pointer", fontSize: "20px", color: "#08c" }}
-          />
-        </Dropdown>
-      ),
+      render: (text, record) => {
+        const { status } = record;
+        const items2 = (() => {
+          switch (status) {
+            case "ACTIVE":
+              return get(items, ["detail", "edit", "stop"]);
+            case "PENDING_CHECKOUT":
+              return get(items, ["detail", "edit", "checkout"]);
+            case "SOON_INACTIVE":
+            case "PENDING_PAYMENT":
+              return get(items, ["detail", "edit"]);
+            case "INACTIVE":
+              return get(items, ["detail"]);
+            default:
+              return [];
+          }
+        })();
+        return (
+          <Dropdown
+            menu={{
+              items: items2,
+              onClick: ({ key }) => handleActionClick(key, record),
+            }}
+            placement="bottom"
+          >
+            <MoreOutlined
+              style={{ cursor: "pointer", fontSize: "20px", color: "#08c" }}
+            />
+          </Dropdown>
+        );
+      },
     },
   ];
 
@@ -179,7 +238,7 @@ const Contracts = () => {
       const response = await apiClient.get("/contracts");
       setContracts(response);
     } catch (error) {
-      message.error("Lỗi khi lấy danh sách hợp đồng!");
+      if (error?.message) message.error(error.message);
       console.error("Error fetching contract list:", error);
     } finally {
       setLoading(false);
@@ -191,7 +250,7 @@ const Contracts = () => {
       const response = await apiClient.get("/houses/nameList");
       setHouseNames(response);
     } catch (error) {
-      message.error("Lỗi khi lấy danh sách tên tòa nhà!");
+      if (error?.message) message.error(error.message);
       console.error("Error fetching house name list:", error);
     }
   };
@@ -218,16 +277,7 @@ const Contracts = () => {
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => {
-              setModalChildren(
-                <Contract
-                  houseNames={houseNames}
-                  refresh={refresh}
-                  close={close}
-                  mode="CREATE"
-                />
-              );
-            }}
+            onClick={() => handleActionClick("create")}
           >
             Thêm mới
           </Button>

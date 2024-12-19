@@ -18,40 +18,25 @@ const { Option } = Select;
 
 const titles = {
   CREATE: "Thêm mới hợp đồng",
-  EDIT: "Chỉnh sửa hợp đồng",
-  VIEW: "Chi tiết hợp đồng",
+  UPDATE: "Chỉnh sửa hợp đồng",
 };
 
-const Contract = ({
-  contractDetail,
-  houseNames,
-  refresh,
-  close,
-  mode = "VIEW",
-}) => {
+const Contract = ({ contractDetail, houseNames, refresh, close, mode }) => {
   const [form] = Form.useForm();
   const [roomNames, setRoomNames] = useState([]);
 
   useEffect(() => {
-    if (mode === "EDIT" || mode === "VIEW") {
+    if (mode === "UPDATE") {
+      const { house, room, repTenant, ...contract } = contractDetail;
       form.setFieldsValue({
-        houseId: contractDetail.house.id,
-        roomId: contractDetail.room.id,
-        startDate: contractDetail.startDate
-          ? dayjs(contractDetail.startDate)
-          : "",
-        endDate: contractDetail.endDate ? dayjs(contractDetail.endDate) : "",
-        rentPrice: contractDetail.rentPrice,
-        deposit: contractDetail.deposit,
-        numberOfPeople: contractDetail.numberOfPeople,
-        numberOfBicycle: contractDetail.numberOfBicycle,
-        numberOfMotorbike: contractDetail.numberOfMotorbike,
-        startElecNumber: contractDetail.startElecNumber,
-        startWaterNumber: contractDetail.startWaterNumber,
-        repTenant: { ...contractDetail.repTenant },
+        houseId: house.id,
+        roomId: room.id,
+        ...contract,
+        startDate: contract.startDate ? dayjs(contract.startDate) : "",
+        endDate: contract.endDate ? dayjs(contract.endDate) : "",
+        repTenant,
       });
-      fetchRoomNameList(contractDetail.house.id);
-    } else if (mode === "CREATE") {
+      fetchRoomNameList(house.id);
     }
   }, [contractDetail]);
 
@@ -60,7 +45,7 @@ const Contract = ({
       const response = await apiClient.get(`/houses/${houseId}/roomNameList`);
       setRoomNames(response);
     } catch (error) {
-      message.error("Lỗi khi lấy danh sách tên phòng!");
+      if (error?.message) message.error(error.message);
       console.error("Error fetching room name list:", error);
     }
   };
@@ -84,11 +69,11 @@ const Contract = ({
         await apiClient.put(`/contracts/${contractDetail.id}`, values);
         message.success("Lưu thành công!");
       }
-
       refresh();
       close();
-    } catch (info) {
-      console.log("Xác nhận không thành công:", info);
+    } catch (error) {
+      console.log("Xác nhận không thành công:", error);
+      if (error?.message) message.error(error.message);
     }
   };
 
@@ -100,7 +85,6 @@ const Contract = ({
         <Form
           form={form}
           onValuesChange={handleValuesChange}
-          layout="vertical"
           disabled={mode === "VIEW"}
           layout="horizontal"
           className="customForm"
@@ -222,8 +206,18 @@ const Contract = ({
                 <InputNumber min={0} />
               </Form.Item>
             </Col>
+            <Col span={12}>
+              <Form.Item label="Số điện cuối" name="endElecNumber">
+                <InputNumber min={0} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="Số nước cuối" name="endWaterNumber">
+                <InputNumber min={0} />
+              </Form.Item>
+            </Col>
           </Row>
-          {mode !== "EDIT" && (
+          {mode !== "UPDATE" && (
             <Row>
               <Card title="Khách thuê" style={{ width: "100%" }} size="small">
                 <Row>
@@ -285,16 +279,14 @@ const Contract = ({
         </Form>
       </div>
 
-      {mode !== "VIEW" && (
-        <div style={{ textAlign: "right", marginTop: "10px" }}>
-          <Button onClick={() => close()} style={{ marginRight: 8 }}>
-            Hủy
-          </Button>
-          <Button type="primary" onClick={() => handleSave()}>
-            Lưu
-          </Button>
-        </div>
-      )}
+      <div style={{ textAlign: "right", marginTop: "10px" }}>
+        <Button onClick={() => close()} style={{ marginRight: 8 }}>
+          Hủy
+        </Button>
+        <Button type="primary" onClick={() => handleSave()}>
+          Lưu
+        </Button>
+      </div>
     </Card>
   );
 };

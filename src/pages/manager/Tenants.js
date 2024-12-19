@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Card, Input, message, Table } from "antd";
-import { CloseCircleOutlined, SearchOutlined } from "@ant-design/icons";
+import { Card, Dropdown, Input, message, Modal, Table } from "antd";
+import {
+  CloseCircleOutlined,
+  EditOutlined,
+  MoreOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import { contractStatus } from "../../statuses";
 import { ContractTag } from "../../tags";
 import apiClient from "../../services/apiClient";
+import CUTenant from "../../components/users/CUTenant";
 
 const { Search } = Input;
 
@@ -11,9 +17,36 @@ const Tenants = () => {
   const [tenants, setTenants] = useState([]);
   const [houseNames, setHouseNames] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [modalChildren, setModalChildren] = useState(null);
+
+  const items = [
+    {
+      key: "update",
+      label: "Sửa thông tin",
+      icon: <EditOutlined />,
+      style: { color: "orange" },
+    },
+  ];
+
+  const handleActionClick = async (actionKey, tenant) => {
+    switch (actionKey) {
+      case "update":
+        setModalChildren(
+          <CUTenant
+            tenant={tenant}
+            refresh={refresh}
+            close={close}
+            mode="UPDATE"
+          />
+        );
+        break;
+      default:
+        console.log("Hành động không xác định:", actionKey, tenant);
+    }
+  };
 
   const columns = [
-    { title: "Id", dataIndex: "id", key: "id", width: 50 },
+    { title: "ID", dataIndex: "id", key: "id", width: 50 },
     {
       title: "Khách thuê",
       dataIndex: "fullName",
@@ -91,6 +124,31 @@ const Tenants = () => {
       onFilter: (value, record) => record.contract.status === value,
       render: (status) => <ContractTag status={status} />,
     },
+    {
+      title: "Thao tác",
+      dataIndex: "",
+      key: "action",
+      width: 100,
+      fixed: "right",
+      align: "center",
+      render: (text, record) => {
+        if (record.role === "REP_TENANT") return null;
+        else
+          return (
+            <Dropdown
+              menu={{
+                items,
+                onClick: ({ key }) => handleActionClick(key, record),
+              }}
+              placement="bottom"
+            >
+              <MoreOutlined
+                style={{ cursor: "pointer", fontSize: "20px", color: "#08c" }}
+              />
+            </Dropdown>
+          );
+      },
+    },
   ];
 
   const fetchTenants = async () => {
@@ -99,11 +157,19 @@ const Tenants = () => {
       const response = await apiClient.get("/tenants");
       setTenants(response);
     } catch (error) {
-      message.error("Lỗi khi lấy danh sách khách thuê!");
+      if (error?.message) message.error(error.message);
       console.error("Error fetching tenant list:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const refresh = () => {
+    fetchTenants();
+  };
+
+  const close = () => {
+    setModalChildren(null);
   };
 
   const fetchHouseNameList = async () => {
@@ -111,7 +177,7 @@ const Tenants = () => {
       const response = await apiClient.get("/houses/nameList");
       setHouseNames(response);
     } catch (error) {
-      message.error("Lỗi khi lấy danh sách tên tòa nhà!");
+      if (error?.message) message.error(error.message);
       console.error("Error fetching house name list:", error);
     }
   };
@@ -135,7 +201,7 @@ const Tenants = () => {
           rowKey="id"
         />
       </Card>
-      {/* <Modal
+      <Modal
         className="customModal"
         open={modalChildren}
         footer={null}
@@ -146,7 +212,7 @@ const Tenants = () => {
         width="max-Content"
       >
         {modalChildren}
-      </Modal> */}
+      </Modal>
     </>
   );
 };

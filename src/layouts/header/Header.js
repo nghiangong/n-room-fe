@@ -1,58 +1,90 @@
-import React, { useEffect } from "react";
-import { Layout, Dropdown, Avatar, message } from "antd";
+import React, { useEffect, useState } from "react";
+import { Layout, Dropdown, Avatar, message, Space, Button } from "antd";
 import {
   UserOutlined,
   LockOutlined,
   PoweroffOutlined,
 } from "@ant-design/icons";
+import { useAuth } from "../../context/AuthContext";
+import { decodeToken } from "../../utils";
+import "../../styles/headerStyles.scss";
+import { useNavigate } from "react-router-dom";
 
 const items = [
   {
-    key: "/userInfo",
+    key: "userInfo",
     label: "Thông tin cá nhân",
     icon: <UserOutlined />,
+    style: { color: "#1677ff" },
   },
   {
-    key: "/changePassword",
+    key: "changePassword",
     label: "Thay đổi mật khẩu",
     icon: <LockOutlined />,
+    style: { color: "#f2c967" },
   },
   {
-    key: "/logout",
+    key: "logout",
     label: "Đăng xuất",
     icon: <PoweroffOutlined />,
   },
 ];
 
-const handleMenuClick = (e) => {
-  message.info("Click on menu item.");
-  console.log("click", e.key);
-};
-
 const Header = () => {
+  const { token, role, logout } = useAuth();
+  const navigate = useNavigate();
+  const [fullName, setFullName] = useState(null);
+
+  const handleMenuClick = (e) => {
+    switch (e.key) {
+      case "logout":
+        logout();
+        break;
+      default:
+        break;
+    }
+  };
+
   useEffect(() => {
-    //get thoong tin gnwuoi dung
-  }, []);
+    if (token) setFullName(decodeToken(token).fullName);
+  }, [token]);
+
   return (
-    <Layout.Header>
-      <div style={{ float: "right", marginRight: "20px", color: "white" }}>
-        <Dropdown
-          menu={{
-            items,
-            onClick: handleMenuClick,
-          }}
-        >
-          <span style={{ cursor: "pointer" }}>
-            <Avatar
-              icon={<UserOutlined />}
-              style={{
-                backgroundColor: "#bdbdbd",
-              }}
-            />
-            <span style={{ marginLeft: 8 }}>Nghĩa Nguyễn</span>
-          </span>
-        </Dropdown>
-      </div>
+    <Layout.Header className="customHeader" color="#b6dddc">
+      <Space align="center">
+        <span className="logo">NRooM</span>
+        <span className="appName">Quản lý phòng trọ</span>
+      </Space>
+      <span className="rightCorner">
+        {token ? (
+          <Dropdown
+            menu={{
+              items,
+              onClick: handleMenuClick,
+            }}
+            className="user"
+          >
+            <span>
+              <Avatar
+                icon={<UserOutlined />}
+                style={{
+                  backgroundColor: "#bdbdbd",
+                }}
+              />
+              <span style={{ marginLeft: 8 }}>{fullName}</span>
+            </span>
+          </Dropdown>
+        ) : (
+          <Space>
+            <Button type="dashed" ghost onClick={() => navigate("/login")}>
+              Đăng nhập
+            </Button>
+            <Button type="dashed" ghost onClick={() => navigate("/register")}>
+              Đăng ký
+            </Button>
+          </Space>
+        )}
+      </span>
     </Layout.Header>
   );
 };

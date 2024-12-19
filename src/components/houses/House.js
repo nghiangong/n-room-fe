@@ -15,18 +15,17 @@ const { Option } = Select;
 
 const titles = {
   CREATE: "Thêm mới tòa nhà",
-  EDIT: "Chỉnh sửa tòa nhà",
-  VIEW: "Thông tin tòa nhà",
+  UPDATE: "Chỉnh sửa tòa nhà",
 };
 
-const House = ({ houseDetail, refresh, close, mode = "CREATE" }) => {
+const CUHouse = ({ houseDetail, refresh, close, mode = "CREATE" }) => {
   const [form] = Form.useForm();
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
 
   useEffect(() => {
-    if (mode === "EDIT") {
+    if (mode === "UPDATE") {
       form.setFieldsValue(houseDetail);
       provinceListApi().then((result) => {
         setProvinces(result);
@@ -41,8 +40,6 @@ const House = ({ houseDetail, refresh, close, mode = "CREATE" }) => {
         wardListApi(houseDetail.district).then((result) => {
           setWards(result);
         });
-    } else if (mode === "VIEW") {
-      form.setFieldsValue(houseDetail);
     } else if (mode === "CREATE") {
       provinceListApi().then((result) => {
         setProvinces(result);
@@ -93,7 +90,6 @@ const House = ({ houseDetail, refresh, close, mode = "CREATE" }) => {
           form={form}
           onValuesChange={handleValuesChange}
           layout="vertical"
-          disabled={mode === "VIEW"}
           className="customForm"
         >
           <Row gutter={14}>
@@ -186,4 +182,4 @@ const House = ({ houseDetail, refresh, close, mode = "CREATE" }) => {
   );
 };
 
-export default House;
+export default CUHouse;

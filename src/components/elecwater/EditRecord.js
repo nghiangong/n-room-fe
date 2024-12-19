@@ -5,7 +5,6 @@ import apiClient from "../../services/apiClient";
 
 const EditRecord = ({ record, recordKey, close, refresh }) => {
   const [form] = Form.useForm();
-  //   const
 
   let log;
   console.log(recordKey);
@@ -29,6 +28,7 @@ const EditRecord = ({ record, recordKey, close, refresh }) => {
     console.log("log = " + log);
     form.setFieldsValue({
       roomName: record.roomName,
+      roomId: record.roomId,
       date: dayjs(log.date).format("DD/MM/YYYY"),
       value: log.value,
     });
@@ -41,11 +41,11 @@ const EditRecord = ({ record, recordKey, close, refresh }) => {
       switch (recordKey) {
         case "elecPrev":
         case "elecCur":
-          await apiClient.put(`/elecRecords/${log.id}?value=${values.value}`);
+          await apiClient.put(`/elecRecords`, values);
           break;
         case "waterPrev":
         case "waterCur":
-          await apiClient.put(`/waterRecords/${log.id}?value=${values.value}`);
+          await apiClient.put(`/waterRecords`, values);
           break;
         default:
           break;
@@ -64,19 +64,20 @@ const EditRecord = ({ record, recordKey, close, refresh }) => {
         form={form}
         layout="vertical"
         className="customForm"
+        layout="horizontal"
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
       >
-        <Form.Item name="roomName" label="Tên phòng" layout="horizontal">
+        <Form.Item name="roomName" label="Tên phòng">
           <Input disabled />
         </Form.Item>
-        <Form.Item name="date" label="Ngày ghi" layout="horizontal">
+        <Form.Item name="roomId" hidden></Form.Item>
+        <Form.Item name="date" label="Ngày ghi">
           <Input disabled />
         </Form.Item>
         <Form.Item
           name="value"
           label="Số công tơ"
-          layout="horizontal"
           rules={[{ required: true, message: "Vui lòng nhập số công tơ!" }]}
         >
           <InputNumber style={{ width: "100%" }} />

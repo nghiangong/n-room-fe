@@ -12,9 +12,10 @@ import {
 import {
   CloseCircleOutlined,
   EditOutlined,
-  InfoCircleOutlined,
+  InfoOutlined,
   MoreOutlined,
-  PlusCircleOutlined,
+  PauseCircleOutlined,
+  PlayCircleOutlined,
   PlusOutlined,
   SearchOutlined,
   UnorderedListOutlined,
@@ -26,6 +27,8 @@ import "../../styles/modalStyles.scss";
 import House from "../../components/houses/House";
 import RoomList from "../../components/houses/RoomList";
 import AddRoom from "../../components/houses/AddRoom";
+import RHouse from "../../components/houses/RHouse";
+import { get } from "../../utils";
 
 const { Search } = Input;
 
@@ -35,56 +38,64 @@ const Houses = () => {
   const [modalChildren, setModalChildren] = useState(null);
 
   const items = [
-    { key: "detail", label: "Chi tiết nhà", icon: <InfoCircleOutlined /> },
-    { key: "edit", label: "Sửa thông tin", icon: <EditOutlined /> },
     {
-      key: "roomList",
+      key: "detail",
+      label: "Chi tiết nhà",
+      icon: <InfoOutlined />,
+      style: { color: "#1677ff" },
+    },
+    {
+      key: "edit",
+      label: "Sửa thông tin",
+      icon: <EditOutlined />,
+      style: { color: "orange" },
+    },
+    {
+      key: "rooms",
       label: "Danh sách phòng",
       icon: <UnorderedListOutlined />,
+      style: { color: "#1677ff" },
     },
-    { key: "addRoom", label: "Thêm phòng", icon: <PlusCircleOutlined /> },
+    {
+      key: "unlock",
+      label: "Hoạt động",
+      icon: <PlayCircleOutlined />,
+      style: { color: "green" },
+    },
+    {
+      key: "lock",
+      label: "Dừng hoạt động",
+      icon: <PauseCircleOutlined />,
+      style: { color: "orange" },
+    },
   ];
 
   const handleActionClick = async (actionKey, house) => {
+    let houseDetail;
     try {
-      const houseDetail = await fetchHouseDetail(house.id);
-
       switch (actionKey) {
         case "detail":
-          setModalChildren(
-            <House
-              houseDetail={houseDetail}
-              refresh={refresh}
-              close={close}
-              mode="VIEW"
-            />
-          );
-          console.log("Xem chi tiết nhà:", house);
+          houseDetail = await fetchHouseDetail(house.id);
+          setModalChildren(<RHouse houseDetail={houseDetail} />);
           break;
         case "edit":
+          houseDetail = await fetchHouseDetail(house.id);
           setModalChildren(
             <House
               houseDetail={houseDetail}
               refresh={refresh}
               close={close}
-              mode="EDIT"
+              mode="UPDATE"
             />
           );
-          console.log("Sửa thông tin nhà:", house);
           break;
-        case "roomList":
-          console.log("Xem danh sách phòng:", house);
-          setModalChildren(<RoomList houseDetail={houseDetail} />);
-          break;
-        case "addRoom":
-          console.log("Thêm phòng vào nhà:", house);
+        case "create":
           setModalChildren(
-            <AddRoom
-              houseDetail={houseDetail}
-              close={close}
-              refresh={refresh}
-            />
+            <House refresh={refresh} close={close} mode="CREATE" />
           );
+          break;
+        case "rooms":
+          setModalChildren(<RoomList houseDetail={houseDetail} />);
           break;
         default:
           console.log("Hành động không xác định:", actionKey, house);
@@ -95,12 +106,12 @@ const Houses = () => {
   };
 
   const columns = [
-    { title: "Id", dataIndex: "id", key: "id", width: 50 },
+    { title: "ID", dataIndex: "id", key: "id", width: 50 },
     {
       title: "Tên",
       dataIndex: "name",
       key: "name",
-      width: 200, // Đặt chiều rộng cố định
+      width: 200,
       fixed: "left",
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
         <div style={{ padding: 8 }}>
@@ -199,19 +210,32 @@ const Houses = () => {
       width: 100,
       fixed: "right",
       align: "center",
-      render: (text, record) => (
-        <Dropdown
-          menu={{
-            items,
-            onClick: ({ key }) => handleActionClick(key, record),
-          }}
-          placement="bottomLeft"
-        >
-          <MoreOutlined
-            style={{ cursor: "pointer", fontSize: "20px", color: "#08c" }}
-          />
-        </Dropdown>
-      ),
+      render: (text, record) => {
+        const { status } = record;
+        const items2 = (() => {
+          switch (status) {
+            case "ACTIVE":
+              return get(items, ["detail", "rooms", "edit", "lock"]);
+            case "INACTIVE":
+              return get(items, ["detail", "rooms", "unlock"]);
+            default:
+              return [];
+          }
+        })();
+        return (
+          <Dropdown
+            menu={{
+              items: items2,
+              onClick: ({ key }) => handleActionClick(key, record),
+            }}
+            placement="bottom"
+          >
+            <MoreOutlined
+              style={{ cursor: "pointer", fontSize: "20px", color: "#08c" }}
+            />
+          </Dropdown>
+        );
+      },
     },
   ];
 
@@ -221,7 +245,7 @@ const Houses = () => {
       const response = await apiClient.get("/houses");
       setHouses(response);
     } catch (error) {
-      message.error("Lỗi khi lấy danh sách tòa nhà!");
+      if (error?.message) message.error(error.message);
       console.error("Error fetching house list:", error);
     } finally {
       setLoading(false);
@@ -234,7 +258,7 @@ const Houses = () => {
       console.log("houseDetail", response);
       return response;
     } catch (error) {
-      message.error("Lỗi khi lấy chi tiết tòa nhà!");
+      if (error?.message) message.error(error.message);
       console.error("Error fetching house detail:", error);
     }
   };
@@ -260,12 +284,7 @@ const Houses = () => {
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => {
-              message.info("Chức năng thêm nhà trọ!");
-              setModalChildren(
-                <House refresh={refresh} close={close} mode="CREATE" />
-              );
-            }}
+            onClick={() => handleActionClick("create")}
           >
             Thêm mới
           </Button>

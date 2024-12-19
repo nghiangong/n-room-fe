@@ -32,7 +32,7 @@ const RoomList = ({ houseDetail }) => {
       );
       setRooms(response);
     } catch (error) {
-      message.error("Lỗi khi lấy danh sách phòng!");
+      if (error?.message) message.error(error.message);
       console.error("Error fetching room list:", error);
     } finally {
       setLoading(false);
