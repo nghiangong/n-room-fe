@@ -15,15 +15,20 @@ import apiClient from "../../services/apiClient";
 import viVN from "antd/locale/vi_VN";
 dayjs.locale("vi");
 
-const CreateInvoices = ({ houseNames, refresh, close }) => {
+const CreateInvoice = ({ contract, refresh, close }) => {
   const [form] = Form.useForm();
+  useState(() => {
+    form.setFieldValue({
+      contractId: contract.id,
+    });
+  }, []);
 
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
       values.month = values.month.format("YYYY-MM-DD");
       console.log(values);
-      await apiClient.post(`/invoices/house`, values);
+      await apiClient.put(`/contracts/${contract.id}/invoice`, values);
       message.success("Tạo hóa đơn thành công!");
       refresh();
       close();
@@ -44,19 +49,6 @@ const CreateInvoices = ({ houseNames, refresh, close }) => {
           style={{ maxHeight: "70vh", overflowY: "auto", overflowX: "hidden" }}
         >
           <Form form={form} layout="horizontal">
-            <Form.Item
-              name="houseId"
-              label="Tòa nhà"
-              rules={[{ required: true, message: "Vui lòng chọn!" }]}
-            >
-              <Select style={{ width: 200 }} placeholder="Chọn tòa nhà">
-                {houseNames.map((item, index) => (
-                  <Select.Option key={index} value={item.id}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
             <ConfigProvider locale={viVN}>
               <Form.Item
                 name="month"
@@ -81,4 +73,4 @@ const CreateInvoices = ({ houseNames, refresh, close }) => {
   );
 };
 
-export default CreateInvoices;
+export default CreateInvoice;

@@ -68,7 +68,7 @@ const Members = () => {
   };
 
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id", width: 50 },
+    { title: "Mã", dataIndex: "id", key: "id", width: 70 },
     {
       title: "Khách thuê",
       dataIndex: "fullName",

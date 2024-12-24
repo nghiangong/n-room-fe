@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { message, Table, Card, Button, Dropdown, Modal, Input } from "antd";
 import {
   CloseCircleOutlined,
+  DeleteOutlined,
   EditOutlined,
   InfoOutlined,
   MoreOutlined,
@@ -10,15 +11,15 @@ import {
   PlusOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { RoomTag } from "../../tags";
+import { ContractTag, PaymentTag, RoomTag } from "../../tags";
 import apiClient from "../../services/apiClient";
 import "../../styles/tableStyles.scss";
 import "../../styles/modalStyles.scss";
 import "../../styles/cardStyles.scss";
-import { roomStatus } from "../../statuses";
+import { paymentStatus, roomStatus } from "../../statuses";
 import RRoom from "../../components/rooms/RRoom";
 import CURoom from "../../components/rooms/CURoom";
-import { get } from "../../utils";
+import { formatCurrency, get } from "../../utils";
 
 const { Search } = Input;
 
@@ -42,16 +43,22 @@ const Rooms = () => {
       style: { color: "orange" },
     },
     {
-      key: "lock",
+      key: "inactive",
       label: "Dừng hoạt động",
       icon: <PauseCircleOutlined />,
       style: { color: "orange" },
     },
     {
-      key: "unlock",
+      key: "active",
       label: "Hoạt động",
       icon: <PlayCircleOutlined />,
       style: { color: "green" },
+    },
+    {
+      key: "remove",
+      label: "Xóa",
+      icon: <DeleteOutlined />,
+      style: { color: "red" },
     },
   ];
 
@@ -75,7 +82,7 @@ const Rooms = () => {
       case "edit":
         setModalChildren(
           <CURoom
-            roomDetail={room}
+            room={room}
             houseNames={houseNames}
             refresh={refresh}
             close={close}
@@ -83,7 +90,14 @@ const Rooms = () => {
           />
         );
         break;
-      case "lock":
+      case "active":
+        active(room.id);
+        break;
+      case "inactive":
+        inactive(room.id);
+        break;
+      case "remove":
+        remove(room.id);
         break;
       default:
         console.log("Hành động không xác định:", actionKey, room);
@@ -91,7 +105,7 @@ const Rooms = () => {
   };
 
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id", width: 50 },
+    { title: "Mã", dataIndex: "id", key: "id", width: 70 },
     {
       title: "Tòa nhà",
       dataIndex: ["house", "name"],
@@ -137,18 +151,14 @@ const Rooms = () => {
         record.name.toLowerCase().includes(value.toLowerCase()),
     },
     {
-      title: "Giá ban đầu (VNĐ)",
+      title: "Giá thuê",
       dataIndex: ["currentContract", "rentPrice"],
-      render: (text, record) => `${record.price.toLocaleString("vi-VN")}`,
-    },
-    {
-      title: "Giá thuê (VNĐ)",
-      dataIndex: ["currentContract", "rentPrice"],
-      render: (text, record) =>
-        record.currentContract?.rentPrice.toLocaleString("vi-VN") || "",
+      align: "right",
+      render: (text, record) => `${formatCurrency(record.price)}`,
     },
     {
       title: "Số người",
+      align: "center",
       dataIndex: ["currentContract", "numberOfPeople"],
       key: "numberOfPeople",
     },
@@ -165,6 +175,18 @@ const Rooms = () => {
       render: (status) => <RoomTag status={status} />,
     },
     {
+      title: "Hóa đơn",
+      dataIndex: ["currentContract", "paymentStatus"],
+      fixed: "right",
+      filters: Object.keys(paymentStatus).map((key) => ({
+        value: key,
+        text: paymentStatus[key].name,
+      })),
+      onFilter: (value, record) =>
+        record?.currentContract?.paymentStatus === value,
+      render: (status) => <PaymentTag status={status} />,
+    },
+    {
       title: "Thao tác",
       dataIndex: "",
       key: "action",
@@ -176,12 +198,12 @@ const Rooms = () => {
         const items2 = (() => {
           switch (status) {
             case "AVAILABLE":
-              return get(items, ["detail", "edit", "lock"]);
+              return get(items, ["detail", "edit", "inactive", "remove"]);
             case "OCCUPIED":
             case "SOON_AVAILABLE":
               return get(items, ["detail", "edit"]);
             case "INACTIVE":
-              return get(items, ["unlock"]);
+              return get(items, ["unlock", "active", "remove"]);
             default:
               return [];
           }
@@ -223,6 +245,36 @@ const Rooms = () => {
     } catch (error) {
       if (error?.message) message.error(error.message);
       console.error("Error fetching house name list:", error);
+    }
+  };
+
+  const active = async (id) => {
+    try {
+      await apiClient.put(`/rooms/${id}/active`);
+      refresh();
+    } catch (error) {
+      if (error?.message) message.error(error.message);
+      console.error(error);
+    }
+  };
+
+  const inactive = async (id) => {
+    try {
+      await apiClient.put(`/rooms/${id}/inactive`);
+      refresh();
+    } catch (error) {
+      if (error?.message) message.error(error.message);
+      console.error(error);
+    }
+  };
+
+  const remove = async (id) => {
+    try {
+      await apiClient.delete(`/rooms/${id}`);
+      refresh();
+    } catch (error) {
+      if (error?.message) message.error(error.message);
+      console.error(error);
     }
   };
 

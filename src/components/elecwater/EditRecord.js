@@ -37,15 +37,16 @@ const EditRecord = ({ record, recordKey, close, refresh }) => {
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
+      values.date = dayjs(values.date, "DD/MM/YYYY").format("YYYY-MM-DD");
       console.log("Giá trị", values);
       switch (recordKey) {
         case "elecPrev":
         case "elecCur":
-          await apiClient.put(`/elecRecords`, values);
+          await apiClient.put(`/elecRecords/${values.roomId}`, values);
           break;
         case "waterPrev":
         case "waterCur":
-          await apiClient.put(`/waterRecords`, values);
+          await apiClient.put(`/waterRecords/${values.roomId}`, values);
           break;
         default:
           break;
@@ -53,8 +54,9 @@ const EditRecord = ({ record, recordKey, close, refresh }) => {
       message.success("Lưu thành công!");
       refresh();
       close();
-    } catch (info) {
-      console.log("Xác nhận không thành công:", info);
+    } catch (error) {
+      console.log("Xác nhận không thành công:", error);
+      if (error?.message) message.error(error.message);
     }
   };
 
@@ -62,7 +64,6 @@ const EditRecord = ({ record, recordKey, close, refresh }) => {
     <Card title="Chỉnh sửa số công tơ">
       <Form
         form={form}
-        layout="vertical"
         className="customForm"
         layout="horizontal"
         labelCol={{ span: 8 }}

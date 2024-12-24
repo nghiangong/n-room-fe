@@ -3,6 +3,7 @@ import {
   Card,
   ConfigProvider,
   DatePicker,
+  Descriptions,
   Form,
   message,
   Space,
@@ -12,24 +13,64 @@ import apiClient from "../../services/apiClient";
 
 import dayjs from "dayjs";
 import viVN from "antd/locale/vi_VN";
+import { ContractTag } from "../../tags";
 dayjs.locale("vi");
 
-const StopContract = ({ contract, refresh, close }) => {
+const StopContract = ({ contractDetail, refresh, close }) => {
   const [form] = Form.useForm();
 
-  useEffect(() => {}, []);
+  let items = [
+    {
+      key: "id",
+      label: "Mã hợp đồng",
+      children: <span>{contractDetail?.id}</span>,
+    },
+    {
+      key: "1",
+      label: "Tòa nhà",
+      children: <span>{contractDetail?.house?.name}</span>,
+    },
+    {
+      key: "2",
+      label: "Phòng",
+      children: <span>{contractDetail?.room?.name}</span>,
+    },
+    {
+      key: "3",
+      label: "Ngày bắt đầu",
+      children: (
+        <span>
+          {contractDetail?.startDate
+            ? dayjs(contractDetail.startDate).format("DD/MM/YYYY")
+            : "-"}
+        </span>
+      ),
+    },
+    {
+      key: "12",
+      label: "Trạng thái",
+      children: <ContractTag status={contractDetail?.status} />,
+    },
+  ];
+
+  useEffect(() => {
+    const { house, room, ...contract } = contractDetail;
+    form.setFieldsValue({
+      contractId: contract.id,
+      endDate: contract.endDate ? dayjs(contract.endDate) : "",
+    });
+  }, []);
 
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      console.log(values);
+      if (values.endDate) values.endDate = values.endDate.format("YYYY-MM-DD");
 
-      // if (endDate == "curCycle")
-      //   await apiClient.put("tenant/contracts/stopAtCycleEnd");
-      // else await apiClient.put("tenant/contracts/stopAtNextCycleEnd");
-      // message.success("Chấm dứt hợp đồng thành công!");
-      // refresh();
-      // close();
+      console.log(values);
+      await apiClient.put(`/contracts/${contractDetail.id}/stop`, values);
+      message.success("Chấm dứt hợp đồng thành công!");
+      refresh();
+      close();
     } catch (error) {
       console.error("Save failed:", error);
       if (error?.message) message.error(error.message);
@@ -37,12 +78,16 @@ const StopContract = ({ contract, refresh, close }) => {
   };
 
   return (
-    <Card title="Kết thúc hợp đồng" style={{ width: "400px" }}>
+    <Card title="Kết thúc hợp đồng" style={{ width: "350px" }}>
       <div
         style={{ maxHeight: "70vh", overflowY: "auto", overflowX: "hidden" }}
       >
-        <Form form={form} layout="vertical">
+        <div style={{ marginBottom: 16 }}>
+          <Descriptions items={items} column={1} />
+        </div>
+        <Form form={form} layout="horizontal">
           <ConfigProvider locale={viVN}>
+            <Form.Item name="contractId" hidden></Form.Item>
             <Form.Item
               name="endDate"
               label="Ngày kết thúc"
@@ -50,9 +95,6 @@ const StopContract = ({ contract, refresh, close }) => {
                 { required: true, message: "Vui lòng chọn ngày kết thúc!" },
               ]}
             >
-              <DatePicker format="DD/MM/YYYY" />
-            </Form.Item>
-            <Form.Item name="noteDate" label="Ngày khách thuê báo hủy">
               <DatePicker format="DD/MM/YYYY" />
             </Form.Item>
           </ConfigProvider>

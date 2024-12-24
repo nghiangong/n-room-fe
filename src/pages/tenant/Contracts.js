@@ -37,24 +37,30 @@ const Contracts = () => {
   ];
 
   const handleActionClick = async (actionKey, contract) => {
+    let contractDetail;
     switch (actionKey) {
       case "detail":
-        const contractDetail = await fetchContractDetail(contract.id);
+        contractDetail = await fetchContractDetail(contract.id);
         contractDetail &&
           setModalChildren(<RContract contractDetail={contractDetail} />);
         break;
-      case "stop":
-        setModalChildren(
-          <StopContract contract={contract} refresh={refresh} close={close} />
-        );
-        break;
+      // case "stop":
+      //   contractDetail = await fetchContractDetail(contract.id);
+      //   setModalChildren(
+      //     <StopContract
+      //       contractDetail={contractDetail}
+      //       refresh={refresh}
+      //       close={close}
+      //     />
+      //   );
+      //   break;
       default:
         console.log("Hành động không xác định:", actionKey, contract);
     }
   };
 
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id", width: 50 },
+    { title: "Mã", dataIndex: "id", key: "id", width: 70 },
     {
       title: "Ngày bắt đầu",
       dataIndex: "startDate",
@@ -105,15 +111,6 @@ const Contracts = () => {
       align: "center",
       render: (text, record) => {
         const items2 = [...items];
-        if (record.status == "ACTIVE")
-          if (role === "ROLE_REP_TENANT") {
-            items2.push({
-              key: "stop",
-              label: "Dừng hợp đồng",
-              icon: <StopOutlined />,
-              style: { color: "red" },
-            });
-          }
         return (
           <Dropdown
             menu={{
@@ -168,7 +165,7 @@ const Contracts = () => {
 
   return (
     <>
-      <Card title="Danh sách hợp đồng" className="customCard">
+      <Card title="Hợp đồng" className="customCard">
         <Table
           className="customTable"
           columns={columns}

@@ -23,16 +23,16 @@ const items = [
         label: <Link to="contracts">Quản lý hợp đồng</Link>,
       },
       {
-        key: "/tenants",
-        label: <Link to="tenants">Quản lý khách hàng</Link>,
-      },
-      {
         key: "/invoices",
         label: <Link to="invoices">Quản lý hóa đơn</Link>,
       },
       {
         key: "/elecwater",
         label: <Link to="elecwater">Quản lý số điện/nước</Link>,
+      },
+      {
+        key: "/tenants",
+        label: <Link to="tenants">Quản lý khách hàng</Link>,
       },
     ],
   },

@@ -7,6 +7,13 @@ import { ContractTag } from "../../tags";
 const RContract = ({ contractDetail }) => {
   let items = [
     {
+      key: "id",
+      label: "Mã hợp đồng",
+      children: <span>{contractDetail?.id}</span>,
+    },
+    {},
+
+    {
       key: "1",
       label: "Tòa nhà",
       children: <span>{contractDetail?.house?.name}</span>,
@@ -93,15 +100,15 @@ const RContract = ({ contractDetail }) => {
     },
   ];
 
-  if (!contractDetail.house.havingElecIndex)
-    items = items.filter((item) => item.key != "startElecNumber");
-  if (!contractDetail.endElecNumber)
-    items = items.filter((item) => item.key != "endElecNumber");
+  // if (!contractDetail.house.havingElecIndex)
+  //   items = items.filter((item) => item.key != "startElecNumber");
+  // if (!contractDetail.endElecNumber)
+  //   items = items.filter((item) => item.key != "endElecNumber");
 
-  if (!contractDetail?.house?.havingWaterIndex)
-    items = items.filter((item) => item.key != "startWaterNumber");
-  if (!contractDetail.endWaterNumber)
-    items = items.filter((item) => item.key != "endWaterNumber");
+  // if (!contractDetail?.house?.havingWaterIndex)
+  //   items = items.filter((item) => item.key != "startWaterNumber");
+  // if (!contractDetail.endWaterNumber)
+  //   items = items.filter((item) => item.key != "endWaterNumber");
 
   useEffect(() => {}, []);
 

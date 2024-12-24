@@ -5,25 +5,33 @@ export const houseStatus = {
 export const roomStatus = {
   AVAILABLE: { color: "blue", name: "Trống" },
   OCCUPIED: { color: "green", name: "Đang thuê" },
-  INACTIVE: { color: "gray", name: "Ngưng hoạt động" },
-  SOON_AVAILABLE: { color: "purple", name: "Sắp trống" },
+  INACTIVE: { color: "default", name: "Ngưng hoạt động" },
+  SOON_AVAILABLE: { color: "lime", name: "Sắp trống" },
 };
 export const contractStatus = {
   ACTIVE: { color: "green", name: "Đang hiệu lực" },
-  SOON_INACTIVE: { color: "green", name: "Sắp hết hạn" },
-  PENDING_CHECKOUT: { color: "orange", name: "Đợi trả phòng" },
-  PENDING_PAYMENT: { color: "red", name: "Đợi thanh toán" },
-  INACTIVE: { color: "default", name: "Hết hiệu lực" },
+  SOON_EXPIRED: { color: "lime", name: "Sắp hết hạn" },
+  PENDING_CHECKOUT_OR_INVOICE: {
+    color: "orange",
+    name: "Đợi trả phòng",
+  },
+  EXPIRED: { color: "default", name: "Hết hiệu lực" },
 };
 export const invoiceStatus = {
   PROCESSING: { color: "orange", name: "Đang thanh toán" },
   PAID: { color: "green", name: "Đã thanh toán" },
   UNPAID: { color: "red", name: "Chưa thanh toán" },
-  CANCELLED: { color: "gray", name: "Đã hủy" },
+  CANCELLED: { color: "default", name: "Đã hủy" },
 };
+
+export const paymentStatus = {
+  PAID: { color: "green", name: "Đã thanh toán" },
+  UNPAID: { color: "red", name: "Chưa thanh toán" },
+};
+
 export const tenantRole = {
   REP_TENANT: { color: "green", name: "Người đại diện" },
-  TENANT: { color: "blue", name: "Khách thuê" },
+  TENANT: { color: "lime", name: "Khách thuê" },
 };
 export const costUnits = {
   PER_ROOM: { name: "1 phòng / tháng" },

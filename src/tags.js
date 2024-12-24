@@ -5,6 +5,7 @@ import {
   contractStatus,
   houseStatus,
   invoiceStatus,
+  paymentStatus,
   roomStatus,
   tenantRole,
 } from "./statuses";
@@ -34,6 +35,11 @@ export const ContractTag = ({ status }) => {
 
 export const InvoiceTag = ({ status }) => {
   const tagInfo = invoiceStatus[status] || { color: "default", name: status };
+  return <Tag color={tagInfo.color}>{tagInfo.name}</Tag>;
+};
+
+export const PaymentTag = ({ status }) => {
+  const tagInfo = paymentStatus[status] || { color: "default", name: status };
   return <Tag color={tagInfo.color}>{tagInfo.name}</Tag>;
 };
 

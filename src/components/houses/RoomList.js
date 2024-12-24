@@ -20,16 +20,14 @@ const columns = [
   },
 ];
 
-const RoomList = ({ houseDetail }) => {
+const RoomList = ({ house }) => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchRooms = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get(
-        `/houses/${houseDetail.id}/roomList`
-      );
+      const response = await apiClient.get(`/houses/${house.id}/roomList`);
       setRooms(response);
     } catch (error) {
       if (error?.message) message.error(error.message);

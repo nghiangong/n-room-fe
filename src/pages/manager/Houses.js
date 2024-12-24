@@ -11,6 +11,7 @@ import {
 } from "antd";
 import {
   CloseCircleOutlined,
+  DeleteOutlined,
   EditOutlined,
   InfoOutlined,
   MoreOutlined,
@@ -26,7 +27,6 @@ import "../../styles/tableStyles.scss";
 import "../../styles/modalStyles.scss";
 import House from "../../components/houses/House";
 import RoomList from "../../components/houses/RoomList";
-import AddRoom from "../../components/houses/AddRoom";
 import RHouse from "../../components/houses/RHouse";
 import { get } from "../../utils";
 
@@ -57,16 +57,22 @@ const Houses = () => {
       style: { color: "#1677ff" },
     },
     {
-      key: "unlock",
+      key: "active",
       label: "Hoạt động",
       icon: <PlayCircleOutlined />,
       style: { color: "green" },
     },
     {
-      key: "lock",
+      key: "inactive",
       label: "Dừng hoạt động",
       icon: <PauseCircleOutlined />,
       style: { color: "orange" },
+    },
+    {
+      key: "remove",
+      label: "Xóa",
+      icon: <DeleteOutlined />,
+      style: { color: "volcano" },
     },
   ];
 
@@ -95,7 +101,16 @@ const Houses = () => {
           );
           break;
         case "rooms":
-          setModalChildren(<RoomList houseDetail={houseDetail} />);
+          setModalChildren(<RoomList house={house} />);
+          break;
+        case "active":
+          await active(house.id);
+          break;
+        case "inactive":
+          await inactive(house.id);
+          break;
+        case "remove":
+          await remove(house.id);
           break;
         default:
           console.log("Hành động không xác định:", actionKey, house);
@@ -106,7 +121,7 @@ const Houses = () => {
   };
 
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id", width: 50 },
+    { title: "Mã", dataIndex: "id", key: "id", width: 70 },
     {
       title: "Tên",
       dataIndex: "name",
@@ -143,50 +158,42 @@ const Houses = () => {
         record.name.toLowerCase().includes(value.toLowerCase()),
     },
     {
-      title: "Địa chỉ",
-      dataIndex: "address",
-      key: "address",
-      width: 300,
-      render: (text, record) => (
-        <Tooltip
-          title={`${record.address}, ${record.ward}, ${record.district}, ${record.province}`}
-        >
-          <span>{`${record.address}, ${record.ward}, ${record.district}, ${record.province}`}</span>
-        </Tooltip>
-      ),
-    },
-    {
       title: "Số phòng",
       children: [
         {
           title: "Tổng",
           dataIndex: "roomsCount",
           key: "roomsCount",
+          align: "center",
           width: 70,
         },
         {
           title: "Đang thuê",
           dataIndex: "occupiedRoomsCount",
           key: "occupiedRoomsCount",
+          align: "center",
           width: 100,
         },
         {
           title: "Trống",
           dataIndex: "availableRoomsCount",
           key: "availableRoomsCount",
+          align: "center",
           width: 70,
         },
         {
           title: "Sắp trống",
           dataIndex: "availableSoonRoomsCount",
           key: "availableSoonRoomsCount",
+          align: "center",
           width: 100,
         },
         {
-          title: "Ngưng hoạt động",
+          title: "Ngưng thuê",
           dataIndex: "inactiveRoomsCount",
           key: "inactiveRoomsCount",
-          width: 150,
+          align: "center",
+          width: 100,
         },
       ],
     },
@@ -215,9 +222,15 @@ const Houses = () => {
         const items2 = (() => {
           switch (status) {
             case "ACTIVE":
-              return get(items, ["detail", "rooms", "edit", "lock"]);
+              return get(items, [
+                "detail",
+                "rooms",
+                "edit",
+                "inactive",
+                "remove",
+              ]);
             case "INACTIVE":
-              return get(items, ["detail", "rooms", "unlock"]);
+              return get(items, ["detail", "rooms", "active", "remove"]);
             default:
               return [];
           }
@@ -260,6 +273,36 @@ const Houses = () => {
     } catch (error) {
       if (error?.message) message.error(error.message);
       console.error("Error fetching house detail:", error);
+    }
+  };
+
+  const active = async (id) => {
+    try {
+      await apiClient.put(`/houses/${id}/active`);
+      refresh();
+    } catch (error) {
+      if (error?.message) message.error(error.message);
+      console.error(error);
+    }
+  };
+
+  const inactive = async (id) => {
+    try {
+      await apiClient.put(`/houses/${id}/inactive`);
+      refresh();
+    } catch (error) {
+      if (error?.message) message.error(error.message);
+      console.error(error);
+    }
+  };
+
+  const remove = async (id) => {
+    try {
+      await apiClient.delete(`/houses/${id}`);
+      refresh();
+    } catch (error) {
+      if (error?.message) message.error(error.message);
+      console.error(error);
     }
   };
 

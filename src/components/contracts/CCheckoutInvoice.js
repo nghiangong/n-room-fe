@@ -1,10 +1,66 @@
-import { Button, Card, Form, InputNumber, message, Radio, Space } from "antd";
+import {
+  Button,
+  Card,
+  Descriptions,
+  Form,
+  InputNumber,
+  message,
+  Radio,
+  Space,
+} from "antd";
 import React, { useEffect } from "react";
+import { ContractTag } from "../../tags";
+import dayjs from "dayjs";
+import apiClient from "../../services/apiClient";
 
 const CCheckoutInvoice = ({ contractDetail, refresh, close }) => {
   const [form] = Form.useForm();
-
   const { house, room, repTenant, ...contract } = contractDetail;
+
+  let items = [
+    {
+      key: "id",
+      label: "Mã hợp đồng",
+      children: <span>{contractDetail?.id}</span>,
+    },
+    {
+      key: "1",
+      label: "Tòa nhà",
+      children: <span>{contractDetail?.house?.name}</span>,
+    },
+    {
+      key: "2",
+      label: "Phòng",
+      children: <span>{contractDetail?.room?.name}</span>,
+    },
+    {
+      key: "3",
+      label: "Ngày bắt đầu",
+      children: (
+        <span>
+          {contractDetail?.startDate
+            ? dayjs(contractDetail.startDate).format("DD/MM/YYYY")
+            : "-"}
+        </span>
+      ),
+    },
+    {
+      key: "4",
+      label: "Ngày kết thúc",
+      children: (
+        <span>
+          {contractDetail?.endDate
+            ? dayjs(contractDetail.endDate).format("DD/MM/YYYY")
+            : "-"}
+        </span>
+      ),
+    },
+    {
+      key: "12",
+      label: "Trạng thái",
+      children: <ContractTag status={contractDetail?.status} />,
+    },
+  ];
 
   useEffect(() => {
     form.setFieldsValue({
@@ -17,31 +73,24 @@ const CCheckoutInvoice = ({ contractDetail, refresh, close }) => {
     try {
       const values = await form.validateFields();
       console.log(values);
+      await apiClient.put(`/contracts/${contract.id}/checkoutInvoice`, values);
+      message.success("Tạo thành công hóa đơn");
+      refresh();
+      close();
     } catch (error) {
       console.error("Save failed:", error);
       if (error?.message) message.error(error.message);
     }
   };
   return (
-    <Card title="Tạo hóa đơn trả phòng" style={{ width: "400px" }}>
+    <Card title="Tạo hóa đơn trả phòng" style={{ width: "350px" }}>
       <div
         style={{ maxHeight: "70vh", overflowY: "auto", overflowX: "hidden" }}
       >
+        <div style={{ marginBottom: 16 }}>
+          <Descriptions items={items} column={1} />
+        </div>
         <Form form={form} layout="horizontal">
-          <Form.Item name="contractId" hidden></Form.Item>
-          <Form.Item
-            name="refundType"
-            label="Hoàn cọc"
-            rules={[{ required: true, message: "Vui lòng chọn!" }]}
-          >
-            <Radio.Group>
-              <Space direction="vertical" style={{ paddingTop: 6 }}>
-                <Radio value="FULL">Toàn bộ</Radio>
-                <Radio value="PARTIAL">Một phần</Radio>
-                <Radio value="NO">Không hoàn</Radio>
-              </Space>
-            </Radio.Group>
-          </Form.Item>
           {house?.havingElecIndex && (
             <Form.Item
               name="endElecNumber"

@@ -10,6 +10,10 @@ const Room = () => {
   const [roomDetail, setRoomDetail] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const house = roomDetail?.house;
+  console.log("room = " + roomDetail);
+  console.log(house);
+
   const fetchRoom = async () => {
     setLoading(true);
     try {
@@ -70,12 +74,16 @@ const Room = () => {
             <Col span={24}>
               <UserDes user={roomDetail?.house.manager} />
             </Col>
-            <Col span={12}>
-              <RRecords records={roomDetail?.elecRecords} mode="ELEC" />
-            </Col>
-            <Col span={12}>
-              <RRecords records={roomDetail?.waterRecords} mode="WATER" />
-            </Col>
+            {house?.havingElecIndex && (
+              <Col span={12}>
+                <RRecords records={roomDetail?.elecRecords} mode="ELEC" />
+              </Col>
+            )}
+            {house?.havingWaterIndex && (
+              <Col span={12}>
+                <RRecords records={roomDetail?.waterRecords} mode="WATER" />
+              </Col>
+            )}
           </Row>
         </Col>
         <Col span={12}>

@@ -9,25 +9,19 @@ const titles = {
   UPDATE: "Chỉnh sửa phòng",
 };
 
-const CURoom = ({
-  roomDetail,
-  houseNames,
-  refresh,
-  close,
-  mode = "CREATE",
-}) => {
+const CURoom = ({ room, houseNames, refresh, close, mode = "CREATE" }) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (mode === "EDIT") {
+    if (mode === "UPDATE") {
       form.setFieldsValue({
-        houseId: roomDetail.house.id,
-        name: roomDetail.name,
-        price: roomDetail.price,
+        houseId: room.house.id,
+        name: room.name,
+        price: room.price,
       });
     }
     console.log(form.getFieldsValue());
-  }, [roomDetail]);
+  }, [room]);
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
@@ -37,7 +31,7 @@ const CURoom = ({
         await apiClient.post(`/rooms`, values);
         message.success("Tạo mới thành công!");
       } else {
-        await apiClient.put(`/rooms/${roomDetail.id}`, values);
+        await apiClient.put(`/rooms/${room.id}`, values);
         message.success("Lưu thành công!");
       }
 

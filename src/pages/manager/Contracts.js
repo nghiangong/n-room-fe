@@ -14,14 +14,15 @@ import {
 import apiClient from "../../services/apiClient";
 import "../../styles/tableStyles.scss";
 import "../../styles/modalStyles.scss";
-import { ContractTag } from "../../tags";
-import { contractStatus } from "../../statuses";
+import { ContractTag, PaymentTag } from "../../tags";
+import { contractStatus, paymentStatus } from "../../statuses";
 import dayjs from "dayjs";
 import Contract from "../../components/contracts/Contract";
 import RContract from "../../components/contracts/RContract";
 import StopContract from "../../components/contracts/StopContract";
 import CCheckoutInvoice from "../../components/contracts/CCheckoutInvoice";
 import { get } from "../../utils";
+import CreateInvoice from "../../components/contracts/CreateInvoice";
 
 const { Search } = Input;
 
@@ -42,19 +43,25 @@ const Contracts = () => {
       key: "edit",
       label: "Sửa hợp đồng",
       icon: <EditOutlined />,
-      style: { color: "#ffc107" },
+      style: { color: "orange" },
     },
     {
       key: "checkout",
       label: "Trả phòng",
       icon: <ArrowRightOutlined />,
-      style: { color: "#ffc107" },
+      style: { color: "purple" },
     },
     {
       key: "stop",
       label: "Kết thúc",
       icon: <CloseOutlined />,
-      style: { color: "#fd7e14" },
+      style: { color: "purple" },
+    },
+    {
+      key: "createInvoice",
+      label: "Tạo hóa đơn",
+      icon: <PlusOutlined />,
+      style: { color: "blue" },
     },
   ];
 
@@ -86,7 +93,11 @@ const Contracts = () => {
         break;
       case "stop":
         setModalChildren(
-          <StopContract contract={contract} close={close} refresh={refresh} />
+          <StopContract
+            contractDetail={contract}
+            close={close}
+            refresh={refresh}
+          />
         );
         break;
       case "checkout":
@@ -98,13 +109,18 @@ const Contracts = () => {
           />
         );
         break;
+      case "createInvoice":
+        setModalChildren(
+          <CreateInvoice contract={contract} close={close} refresh={refresh} />
+        );
+        break;
       default:
         console.log("Hành động không xác định:", actionKey, contract);
     }
   };
 
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id", width: 50 },
+    { title: "Mã", dataIndex: "id", key: "id", width: 70 },
     {
       title: "Tòa nhà",
       dataIndex: ["house", "name"],
@@ -164,23 +180,15 @@ const Contracts = () => {
       key: "endDate",
       render: (text) =>
         text ? dayjs(text).format("DD/MM/YYYY") : "Chưa kết thúc",
+      sorter: (a, b) => {
+        if (!a.endDate && !b.endDate) return 0;
+        if (!a.endDate) return 1;
+        if (!b.endDate) return -1;
+        return dayjs(a.endDate).diff(dayjs(b.endDate));
+      },
     },
     {
-      title: "Tiền thuê (VNĐ)",
-      dataIndex: "rentPrice",
-      key: "rentPrice",
-      align: "right",
-      render: (text, record) => record.rentPrice.toLocaleString("vi-VN") || "",
-    },
-    {
-      title: "Tiền cọc (VNĐ)",
-      dataIndex: "deposit",
-      key: "deposit",
-      align: "right",
-      render: (text, record) => record.rentPrice.toLocaleString("vi-VN") || "",
-    },
-    {
-      title: "Tình trạng",
+      title: "Trạng thái",
       dataIndex: "status",
       key: "status",
       fixed: "right",
@@ -190,6 +198,18 @@ const Contracts = () => {
       })),
       onFilter: (value, record) => record.status === value,
       render: (status) => <ContractTag status={status} />,
+    },
+    {
+      title: "Hóa đơn",
+      dataIndex: "paymentStatus",
+      fixed: "right",
+      filters: Object.keys(paymentStatus).map((key) => ({
+        value: key,
+        text: paymentStatus[key].name,
+      })),
+      onFilter: (value, record) =>
+        record?.currentContract?.paymentStatus === value,
+      render: (status) => <PaymentTag status={status} />,
     },
     {
       title: "Thao tác",
@@ -203,13 +223,19 @@ const Contracts = () => {
         const items2 = (() => {
           switch (status) {
             case "ACTIVE":
-              return get(items, ["detail", "edit", "stop"]);
-            case "PENDING_CHECKOUT":
-              return get(items, ["detail", "edit", "checkout"]);
-            case "SOON_INACTIVE":
-            case "PENDING_PAYMENT":
-              return get(items, ["detail", "edit"]);
-            case "INACTIVE":
+              if (record.endDate)
+                return get(items, ["detail", "edit", "createInvoice"]);
+              return get(items, ["detail", "edit", "stop", "createInvoice"]);
+            case "SOON_EXPIRED":
+              return get(items, ["detail", "edit", "createInvoice"]);
+            case "PENDING_CHECKOUT_OR_INVOICE":
+              return get(items, [
+                "detail",
+                "edit",
+                "checkout",
+                "createInvoice",
+              ]);
+            case "EXPIRED":
               return get(items, ["detail"]);
             default:
               return [];

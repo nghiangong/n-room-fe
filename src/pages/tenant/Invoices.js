@@ -56,7 +56,7 @@ const Invoices = () => {
   };
 
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id", width: 50 },
+    { title: "Mã", dataIndex: "id", key: "id", width: 70 },
     {
       title: "Tên hóa đơn",
       dataIndex: "name",

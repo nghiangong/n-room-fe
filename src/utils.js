@@ -12,3 +12,7 @@ export const get = (items, keys) => {
   const keySet = new Set(keys);
   return items.filter((item) => keySet.has(item.key));
 };
+
+export const formatDate = (date) => {
+  if (date) date = date.format("YYYY-MM-DD");
+};

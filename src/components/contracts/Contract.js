@@ -13,6 +13,7 @@ import {
 import React, { useEffect, useState } from "react";
 import apiClient from "../../services/apiClient";
 import dayjs from "dayjs";
+import { configDate } from "../../utils";
 
 const { Option } = Select;
 
@@ -60,7 +61,8 @@ const Contract = ({ contractDetail, houseNames, refresh, close, mode }) => {
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      console.log("Giá trị", values);
+      values.startDate = values.startDate.format("YYYY-MM-DD");
+      if (values.endDate) values.endDate = values.endDate.format("YYYY-MM-DD");
 
       if (mode === "CREATE") {
         await apiClient.post(`/contracts`, values);

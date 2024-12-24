@@ -13,6 +13,7 @@ import {
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
+  DeleteOutlined,
   InfoOutlined,
   MoreOutlined,
   RedoOutlined,
@@ -51,10 +52,10 @@ const Invoices = () => {
       style: { color: "green" },
     },
     {
-      key: "recreate",
-      label: "Tạo lại",
-      icon: <RedoOutlined />,
-      style: { color: "#fd7e14" },
+      key: "remove",
+      label: "Xóa",
+      icon: <DeleteOutlined />,
+      style: { color: "red" },
     },
   ];
 
@@ -86,13 +87,16 @@ const Invoices = () => {
           },
         });
         break;
+      case "remove":
+        await remove(invoice.id);
+        break;
       default:
         console.log("Hành động không xác định:", actionKey, invoice);
     }
   };
 
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id", width: 50 },
+    { title: "Mã", dataIndex: "id", key: "id", width: 70 },
     {
       title: "Tòa nhà",
       dataIndex: ["house", "name"],
@@ -213,9 +217,7 @@ const Invoices = () => {
             case "PAID":
               return get(items, ["detail"]);
             case "UNPAID":
-              return get(items, ["detail", "confirmPayment", "recreate"]);
-            case "CANCELLED":
-              return get(items, ["detail"]);
+              return get(items, ["detail", "confirmPayment", "remove"]);
             default:
               return [];
           }
@@ -256,6 +258,16 @@ const Invoices = () => {
     } catch (error) {
       if (error?.message) message.error(error.message);
       console.error("Error fetching house name list:", error);
+    }
+  };
+
+  const remove = async (id) => {
+    try {
+      await apiClient.delete(`/invoices/${id}`);
+      refresh();
+    } catch (error) {
+      if (error?.message) message.error(error.message);
+      console.error(error);
     }
   };
 
