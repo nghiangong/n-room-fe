@@ -27,8 +27,8 @@ const TenantSidebar = () => {
       icon: <HomeOutlined />,
     },
     {
-      key: "/contracts",
-      label: <Link to="contracts">Hợp đồng</Link>,
+      key: "/contract",
+      label: <Link to="contract">Hợp đồng</Link>,
       icon: <SolutionOutlined />,
     },
     {

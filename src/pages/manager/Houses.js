@@ -42,7 +42,7 @@ const Houses = () => {
       key: "detail",
       label: "Chi tiết nhà",
       icon: <InfoOutlined />,
-      style: { color: "#1677ff" },
+      style: { color: "blue" },
     },
     {
       key: "edit",
@@ -54,7 +54,7 @@ const Houses = () => {
       key: "rooms",
       label: "Danh sách phòng",
       icon: <UnorderedListOutlined />,
-      style: { color: "#1677ff" },
+      style: { color: "blue" },
     },
     {
       key: "active",
@@ -72,7 +72,7 @@ const Houses = () => {
       key: "remove",
       label: "Xóa",
       icon: <DeleteOutlined />,
-      style: { color: "volcano" },
+      style: { color: "red" },
     },
   ];
 
@@ -173,6 +173,9 @@ const Houses = () => {
           key: "occupiedRoomsCount",
           align: "center",
           width: 100,
+          render: (value, record) => (
+            <>{record.occupiedRoomsCount + record.availableSoonRoomsCount}</>
+          ),
         },
         {
           title: "Trống",
@@ -180,13 +183,6 @@ const Houses = () => {
           key: "availableRoomsCount",
           align: "center",
           width: 70,
-        },
-        {
-          title: "Sắp trống",
-          dataIndex: "availableSoonRoomsCount",
-          key: "availableSoonRoomsCount",
-          align: "center",
-          width: 100,
         },
         {
           title: "Ngưng thuê",

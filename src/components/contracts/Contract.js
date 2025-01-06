@@ -236,27 +236,46 @@ const Contract = ({ contractDetail, houseNames, refresh, close, mode }) => {
                   </Col>
                   <Col span={12}>
                     <Form.Item
-                      label="Số CMND"
-                      name={["repTenant", "personalIdNumber"]}
+                      name="personalIdNumber"
+                      label="CCCD"
                       rules={[
-                        { required: true, message: "Vui lòng nhập số CMND!" },
+                        {
+                          required: true,
+                          message: "Vui lòng nhập căn cước công dân!",
+                        },
+                        {
+                          pattern: /^\d{12}$/,
+                          message: "CCCD phải có đúng 12 chữ số!",
+                        },
                       ]}
                     >
-                      <Input />
+                      <Input
+                        maxLength={12}
+                        placeholder="Nhập căn cước công dân"
+                      />
                     </Form.Item>
                   </Col>
                   <Col span={12}>
                     <Form.Item
+                      name="phoneNumber"
                       label="Số điện thoại"
-                      name={["repTenant", "phoneNumber"]}
                       rules={[
                         {
                           required: true,
                           message: "Vui lòng nhập số điện thoại!",
                         },
+                        {
+                          pattern: /^(\+84|0)\d{9,10}$/,
+                          message:
+                            "Số điện thoại không hợp lệ! Vui lòng nhập số bắt đầu bằng +84 hoặc 0, gồm 9-10 chữ số.",
+                        },
                       ]}
                     >
-                      <Input />
+                      <Input
+                        style={{ width: "100%" }}
+                        maxLength={11}
+                        placeholder="Vui lòng nhập số điện thoại!"
+                      />
                     </Form.Item>
                   </Col>
                   <Col span={12}>

@@ -4,34 +4,51 @@ import apiClient from "../../services/apiClient";
 import { useAuth } from "../../context/AuthContext";
 
 const titles = {
-  CREATE: "Thêm thành viên",
-  UPDATE: "Chỉnh sửa thông tin",
+  CREATE_MEMBER: "Thêm thành viên",
+  UPDATE_MEMBER: "Chỉnh sửa thông tin",
+  UPDATE_MANAGER: "Thay đổi thông tin",
+  UPDATE_TENANT: "Chỉnh sửa thông tin",
 };
 
-const CUTenant = ({ tenant, refresh, close, mode = "CREATE" }) => {
+const CUUser = ({ user, refresh, close, mode = "CREATE_MEMBER" }) => {
   const { role } = useAuth();
 
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (mode === "UPDATE") {
-      form.setFieldsValue(tenant || {});
+    if (
+      mode === "UPDATE_MANAGER" ||
+      mode === "UPDATE_TENANT" ||
+      mode === "UPDATE_MEMBER"
+    ) {
+      form.setFieldsValue(user || {});
     } else {
       form.resetFields();
     }
-  }, [tenant, mode]);
+  }, [user, mode]);
 
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      if (mode === "CREATE") {
-        await apiClient.post(`tenant/members`, values);
-        message.success("Tạo mới thành công!");
-      } else {
-        if (role == "ROLE_REP_TENANT")
-          await apiClient.put(`tenant/members/${tenant.id}`, values);
-        else await apiClient.post(`tenants/${tenant.id}`, values);
-        message.success("Lưu thành công!");
+      switch (mode) {
+        case "CREATE_MEMBER":
+          await apiClient.post(`tenant/members`, values);
+          message.success("Tạo mới thành công!");
+          break;
+        case "UPDATE_MEMBER":
+          await apiClient.put(`tenant/members/${user.id}`, values);
+          message.success("Lưu thành công!");
+          break;
+        case "UPDATE_MANAGER":
+          await apiClient.put(`users`, values);
+          message.success("Lưu thành công!");
+          break;
+        case "UPDATE_TENANT":
+          await apiClient.put(`tenants/${user.id}`, values);
+          message.success("Lưu thành công!");
+          break;
+        default:
+          break;
       }
       refresh();
       close();
@@ -64,21 +81,30 @@ const CUTenant = ({ tenant, refresh, close, mode = "CREATE" }) => {
             label="CCCD"
             rules={[
               { required: true, message: "Vui lòng nhập căn cước công dân!" },
+              {
+                pattern: /^\d{12}$/,
+                message: "CCCD phải có đúng 12 chữ số!",
+              },
             ]}
           >
-            <Input />
+            <Input maxLength={12} placeholder="Nhập căn cước công dân" />
           </Form.Item>
           <Form.Item
             name="phoneNumber"
             label="Số điện thoại"
             rules={[
               { required: true, message: "Vui lòng nhập số điện thoại!" },
+              {
+                pattern: /^(\+84|0)\d{9,10}$/,
+                message:
+                  "Số điện thoại không hợp lệ! Vui lòng nhập số bắt đầu bằng +84 hoặc 0, gồm 9-10 chữ số.",
+              },
             ]}
           >
-            <InputNumber
+            <Input
               style={{ width: "100%" }}
-              formatter={(value) => value.replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
-              parser={(value) => value.replace(/\.\s?|(,*)/g, "")}
+              maxLength={11}
+              placeholder="Vui lòng nhập số điện thoại!"
             />
           </Form.Item>
           <Form.Item
@@ -105,4 +131,4 @@ const CUTenant = ({ tenant, refresh, close, mode = "CREATE" }) => {
   );
 };
 
-export default CUTenant;
+export default CUUser;

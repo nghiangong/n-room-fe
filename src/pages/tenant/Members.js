@@ -11,7 +11,7 @@ import { Button, Card, Dropdown, message, Modal, Table } from "antd";
 import { TenantTag } from "../../tags";
 import { useAuth } from "../../context/AuthContext";
 import Contract from "../../components/contracts/Contract";
-import CUTenant from "../../components/users/CUTenant";
+import CUUser from "../../components/users/CUUser";
 
 const Members = () => {
   const { role } = useAuth();
@@ -39,7 +39,7 @@ const Members = () => {
     switch (actionKey) {
       case "create":
         setModalChildren(
-          <CUTenant refresh={refresh} close={close} mode="CREATE" />
+          <CUUser refresh={refresh} close={close} mode="CREATE_MEMBER" />
         );
         break;
       case "delete":
@@ -54,11 +54,11 @@ const Members = () => {
         break;
       case "update":
         setModalChildren(
-          <CUTenant
-            tenant={tenant}
+          <CUUser
+            user={tenant}
             refresh={refresh}
             close={close}
-            mode="UPDATE"
+            mode="UPDATE_MEMBER"
           />
         );
         break;

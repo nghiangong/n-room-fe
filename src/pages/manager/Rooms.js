@@ -34,7 +34,7 @@ const Rooms = () => {
       key: "detail",
       label: "Chi tiết phòng trọ",
       icon: <InfoOutlined />,
-      style: { color: "#1677ff" },
+      style: { color: "blue" },
     },
     {
       key: "edit",

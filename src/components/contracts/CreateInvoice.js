@@ -13,9 +13,10 @@ import React, { useState } from "react";
 import apiClient from "../../services/apiClient";
 
 import viVN from "antd/locale/vi_VN";
+import RInvoice from "../invoices/RInvoice";
 dayjs.locale("vi");
 
-const CreateInvoice = ({ contract, refresh, close }) => {
+const CreateInvoice = ({ contract, refresh, close, setModalChildren }) => {
   const [form] = Form.useForm();
   useState(() => {
     form.setFieldValue({
@@ -28,10 +29,13 @@ const CreateInvoice = ({ contract, refresh, close }) => {
       const values = await form.validateFields();
       values.month = values.month.format("YYYY-MM-DD");
       console.log(values);
-      await apiClient.put(`/contracts/${contract.id}/invoice`, values);
+      const response = await apiClient.put(
+        `/contracts/${contract.id}/invoice`,
+        values
+      );
       message.success("Tạo hóa đơn thành công!");
+      setModalChildren(<RInvoice invoiceDetail={response} />);
       refresh();
-      close();
     } catch (error) {
       if (error?.message) message.error(error.message);
       console.log("Tạo không thành công:", error.message);

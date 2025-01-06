@@ -20,7 +20,7 @@ import ElecWater from "./pages/manager/ElecWater";
 import Tenants from "./pages/manager/Tenants";
 import TenantDashboard from "./pages/tenant/Dashboard";
 import TenantRoom from "./pages/tenant/Room";
-import TenantContracts from "./pages/tenant/Contracts";
+import TenantContract from "./pages/tenant/Contract";
 import TenantInvoices from "./pages/tenant/Invoices";
 import TenantMembers from "./pages/tenant/Members";
 
@@ -59,7 +59,7 @@ function App() {
                 </Route>
                 <Route path="tenant" element={<ProtectedRoute />}>
                   <Route path="room" element={<TenantRoom />} />
-                  <Route path="contracts" element={<TenantContracts />} />
+                  <Route path="contract" element={<TenantContract />} />
                   <Route path="invoices" element={<TenantInvoices />} />
                   <Route path="members" element={<TenantMembers />} />
                 </Route>

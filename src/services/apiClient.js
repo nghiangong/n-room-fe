@@ -1,6 +1,6 @@
 import { message } from "antd";
 import axios from "axios";
-import { useLogout } from "../context/AuthContext";
+import { useAuth, useLogout } from "../context/AuthContext";
 
 const apiClient = axios.create({
   baseURL: "http://localhost:8080",
@@ -35,8 +35,10 @@ apiClient.interceptors.response.use(
       );
     } else {
       if (error.response.data.code === 16) {
-        const logout = useLogout();
-        logout();
+        if (localStorage.getItem("token")) {
+          localStorage.removeItem("token");
+          window.location.reload();
+        }
       }
       console.error("Response error:", error.response.data.message);
       return Promise.reject(error.response.data);

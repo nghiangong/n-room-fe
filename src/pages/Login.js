@@ -16,14 +16,14 @@ const Login = () => {
 
   const onFinish = async (values) => {
     console.log("Login values:", values);
-
     try {
       const res = await apiClient.post("/auth/login", values);
       login(res.token);
       message.success("Đăng nhập thành công!");
     } catch (error) {
       console.log(error);
-      if (error?.message) message.error(error.message);
+      if (error?.message)
+        message.error("Tên tài khoản hoặc mật khẩu không đúng!");
     }
   };
 
@@ -32,22 +32,24 @@ const Login = () => {
       <Title level={2}>Đăng Nhập</Title>
       <Form name="login" onFinish={onFinish} layout="vertical">
         <Form.Item
-          label="Username"
+          label="Tên tài khoản"
           name="username"
-          rules={[{ required: true, message: "Please input your username!" }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập tên tài khoảnkhoản!" },
+          ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Password"
+          label="Mật khẩu"
           name="password"
-          rules={[{ required: true, message: "Please input your password!" }]}
+          rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
         >
           <Input.Password />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            Login
+            Đăng nhập
           </Button>
         </Form.Item>
       </Form>

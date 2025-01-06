@@ -12,8 +12,14 @@ import React, { useEffect } from "react";
 import { ContractTag } from "../../tags";
 import dayjs from "dayjs";
 import apiClient from "../../services/apiClient";
+import RInvoice from "../invoices/RInvoice";
 
-const CCheckoutInvoice = ({ contractDetail, refresh, close }) => {
+const CCheckoutInvoice = ({
+  contractDetail,
+  refresh,
+  close,
+  setModalChildren,
+}) => {
   const [form] = Form.useForm();
   const { house, room, repTenant, ...contract } = contractDetail;
 
@@ -73,10 +79,14 @@ const CCheckoutInvoice = ({ contractDetail, refresh, close }) => {
     try {
       const values = await form.validateFields();
       console.log(values);
-      await apiClient.put(`/contracts/${contract.id}/checkoutInvoice`, values);
+      const response = await apiClient.put(
+        `/contracts/${contract.id}/checkoutInvoice`,
+        values
+      );
       message.success("Tạo thành công hóa đơn");
+      setModalChildren(<RInvoice invoiceDetail={response} />);
       refresh();
-      close();
+      // close();
     } catch (error) {
       console.error("Save failed:", error);
       if (error?.message) message.error(error.message);

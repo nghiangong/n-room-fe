@@ -9,7 +9,7 @@ import {
 import { contractStatus } from "../../statuses";
 import { ContractTag } from "../../tags";
 import apiClient from "../../services/apiClient";
-import CUTenant from "../../components/users/CUTenant";
+import CUUser from "../../components/users/CUUser";
 
 const { Search } = Input;
 
@@ -32,11 +32,11 @@ const Tenants = () => {
     switch (actionKey) {
       case "update":
         setModalChildren(
-          <CUTenant
-            tenant={tenant}
+          <CUUser
+            user={tenant}
             refresh={refresh}
             close={close}
-            mode="UPDATE"
+            mode="UPDATE_TENANT"
           />
         );
         break;

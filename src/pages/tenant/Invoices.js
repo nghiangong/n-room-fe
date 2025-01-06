@@ -38,7 +38,7 @@ const Invoices = () => {
       key: "detail",
       label: "Chi tiết hóa đơn",
       icon: <InfoOutlined />,
-      style: { color: "#1677ff" },
+      style: { color: "blue" },
     },
   ];
 

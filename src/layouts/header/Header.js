@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Dropdown, Avatar, message, Space, Button } from "antd";
+import { Layout, Dropdown, Avatar, message, Space, Button, Modal } from "antd";
 import {
   UserOutlined,
   LockOutlined,
@@ -9,19 +9,22 @@ import { useAuth } from "../../context/AuthContext";
 import { decodeToken } from "../../utils";
 import "../../styles/headerStyles.scss";
 import { useNavigate } from "react-router-dom";
+import apiClient from "../../services/apiClient";
+import RUser from "../../components/users/RUser";
+import ChangePassword from "../../components/users/ChangePassword";
 
 const items = [
   {
     key: "userInfo",
     label: "Thông tin cá nhân",
     icon: <UserOutlined />,
-    style: { color: "#1677ff" },
+    style: { color: "blue" },
   },
   {
     key: "changePassword",
     label: "Thay đổi mật khẩu",
     icon: <LockOutlined />,
-    style: { color: "#f2c967" },
+    style: { color: "orange" },
   },
   {
     key: "logout",
@@ -34,15 +37,33 @@ const Header = () => {
   const { token, role, logout } = useAuth();
   const navigate = useNavigate();
   const [fullName, setFullName] = useState(null);
+  const [modalChildren, setModalChildren] = useState(null);
 
-  const handleMenuClick = (e) => {
+  const handleMenuClick = async (e) => {
     switch (e.key) {
+      case "userInfo":
+        const user = await apiClient.get("/users/my-info");
+        setModalChildren(
+          <RUser
+            user={user}
+            close={close}
+            setModalChildren={setModalChildren}
+          />
+        );
+        break;
+      case "changePassword":
+        setModalChildren(<ChangePassword close={close} />);
+        break;
       case "logout":
         logout();
         break;
       default:
         break;
     }
+  };
+
+  const close = () => {
+    setModalChildren(null);
   };
 
   useEffect(() => {
@@ -85,6 +106,18 @@ const Header = () => {
           </Space>
         )}
       </span>
+      <Modal
+        className="customModal"
+        open={modalChildren}
+        footer={null}
+        centered
+        onCancel={close}
+        maskClosable={false}
+        destroyOnClose
+        width="max-Content"
+      >
+        {modalChildren}
+      </Modal>
     </Layout.Header>
   );
 };

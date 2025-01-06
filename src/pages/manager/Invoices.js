@@ -24,7 +24,7 @@ import apiClient from "../../services/apiClient";
 import { invoiceStatus } from "../../statuses";
 import Invoice from "../../components/invoices/RInvoice";
 import { InvoiceTag } from "../../tags";
-import CreateInvoice from "../../components/invoices/CInvoice";
+import CreateInvoices from "../../components/invoices/CInvoices";
 import { get } from "../../utils";
 
 const { Search } = Input;
@@ -43,7 +43,7 @@ const Invoices = () => {
       key: "detail",
       label: "Chi tiết hóa đơn",
       icon: <InfoOutlined />,
-      style: { color: "#1677ff" },
+      style: { color: "blue" },
     },
     {
       key: "confirmPayment",
@@ -286,7 +286,12 @@ const Invoices = () => {
 
   const handleCreateClick = () => {
     setModalChildren(
-      <CreateInvoice close={close} refresh={refresh} houseNames={houseNames} />
+      <CreateInvoices
+        close={close}
+        refresh={refresh}
+        houseNames={houseNames}
+        setModalChildren={setModalChildren}
+      />
     );
   };
 

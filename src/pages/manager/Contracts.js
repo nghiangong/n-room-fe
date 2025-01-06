@@ -4,9 +4,9 @@ import {
   ArrowRightOutlined,
   CloseCircleOutlined,
   CloseOutlined,
+  DeleteOutlined,
   EditOutlined,
   InfoOutlined,
-  LogoutOutlined,
   MoreOutlined,
   PlusOutlined,
   SearchOutlined,
@@ -37,7 +37,7 @@ const Contracts = () => {
       key: "detail",
       label: "Chi tiết hợp đồng",
       icon: <InfoOutlined />,
-      style: { color: "#1677ff" },
+      style: { color: "blue" },
     },
     {
       key: "edit",
@@ -63,9 +63,15 @@ const Contracts = () => {
       icon: <PlusOutlined />,
       style: { color: "blue" },
     },
+    {
+      key: "remove",
+      label: "Xóa",
+      icon: <DeleteOutlined />,
+      style: { color: "red" },
+    },
   ];
 
-  const handleActionClick = (actionKey, contract) => {
+  const handleActionClick = async (actionKey, contract) => {
     switch (actionKey) {
       case "detail":
         setModalChildren(<RContract contractDetail={contract} />);
@@ -106,13 +112,22 @@ const Contracts = () => {
             contractDetail={contract}
             close={close}
             refresh={refresh}
+            setModalChildren={setModalChildren}
           />
         );
         break;
       case "createInvoice":
         setModalChildren(
-          <CreateInvoice contract={contract} close={close} refresh={refresh} />
+          <CreateInvoice
+            contract={contract}
+            close={close}
+            refresh={refresh}
+            setModalChildren={setModalChildren}
+          />
         );
+        break;
+      case "remove":
+        await remove(contract.id);
         break;
       default:
         console.log("Hành động không xác định:", actionKey, contract);
@@ -224,19 +239,31 @@ const Contracts = () => {
           switch (status) {
             case "ACTIVE":
               if (record.endDate)
-                return get(items, ["detail", "edit", "createInvoice"]);
-              return get(items, ["detail", "edit", "stop", "createInvoice"]);
+                return get(items, [
+                  "detail",
+                  "edit",
+                  "createInvoice",
+                  "remove",
+                ]);
+              return get(items, [
+                "detail",
+                "edit",
+                "stop",
+                "createInvoice",
+                "remove",
+              ]);
             case "SOON_EXPIRED":
-              return get(items, ["detail", "edit", "createInvoice"]);
+              return get(items, ["detail", "edit", "createInvoice", "remove"]);
             case "PENDING_CHECKOUT_OR_INVOICE":
               return get(items, [
                 "detail",
                 "edit",
                 "checkout",
                 "createInvoice",
+                "remove",
               ]);
             case "EXPIRED":
-              return get(items, ["detail"]);
+              return get(items, ["detail", "remove"]);
             default:
               return [];
           }
@@ -278,6 +305,16 @@ const Contracts = () => {
     } catch (error) {
       if (error?.message) message.error(error.message);
       console.error("Error fetching house name list:", error);
+    }
+  };
+
+  const remove = async (id) => {
+    try {
+      await apiClient.delete(`/contracts/${id}`);
+      refresh();
+    } catch (error) {
+      if (error?.message) message.error(error.message);
+      console.error(error);
     }
   };
 

@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import TenantDes from "../users/UserDes";
 import { ContractTag } from "../../tags";
 
-const RContract = ({ contractDetail }) => {
+const RContract = ({ contractDetail, style }) => {
   let items = [
     {
       key: "id",
@@ -100,24 +100,16 @@ const RContract = ({ contractDetail }) => {
     },
   ];
 
-  // if (!contractDetail.house.havingElecIndex)
-  //   items = items.filter((item) => item.key != "startElecNumber");
-  // if (!contractDetail.endElecNumber)
-  //   items = items.filter((item) => item.key != "endElecNumber");
-
-  // if (!contractDetail?.house?.havingWaterIndex)
-  //   items = items.filter((item) => item.key != "startWaterNumber");
-  // if (!contractDetail.endWaterNumber)
-  //   items = items.filter((item) => item.key != "endWaterNumber");
-
   useEffect(() => {}, []);
 
   return (
-    <Card title="Chi tiết hợp đồng" style={{ width: "700px" }}>
+    <Card title="Chi tiết hợp đồng" style={{ width: "700px", ...style }}>
       <Descriptions items={items} column={2} />
-      <div style={{ marginTop: 10 }}>
-        <TenantDes user={contractDetail?.repTenant} />
-      </div>
+      {contractDetail?.repTenant && (
+        <div style={{ marginTop: 10 }}>
+          <TenantDes user={contractDetail?.repTenant} />
+        </div>
+      )}
     </Card>
   );
 };

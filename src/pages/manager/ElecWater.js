@@ -29,6 +29,13 @@ import { RoomTag } from "../../tags";
 dayjs.locale("vi");
 const { Search } = Input;
 
+const isEdited = (date) => {
+  const currentMonth = dayjs(); // Ngày hiện tại
+  const lastMonth = dayjs().subtract(1, "month"); // Tháng trước
+
+  return date.isSame(currentMonth, "month") || date.isSame(lastMonth, "month");
+};
+
 const ElecWater = () => {
   const [houseNames, setHouseNames] = useState([]);
   const [houseId, setHouseId] = useState(null);
@@ -105,54 +112,56 @@ const ElecWater = () => {
           dataIndex: ["elecs", "prev", "value"],
           align: "center",
           key: "elecPrev",
-          render: (text, record) => (
-            <>
-              <span
-                style={{
-                  display: "inline-block",
-                  width: "50px",
-                  textAlign: "right",
-                }}
-              >
-                {text}
-              </span>
-              <Tooltip title="Chỉnh sửa">
-                <Button
-                  shape="circle"
-                  type="link"
-                  icon={<EditFilled />}
-                  onClick={() => handleEditClick(record, "elecPrev")}
-                />
-              </Tooltip>
-            </>
-          ),
+          render: (text, record) =>
+            record?.elecs && (
+              <>
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: "50px",
+                    textAlign: "right",
+                  }}
+                >
+                  {text}
+                </span>
+                <Tooltip title="Chỉnh sửa">
+                  <Button
+                    shape="circle"
+                    type="link"
+                    icon={<EditFilled />}
+                    onClick={() => handleEditClick(record, "elecPrev")}
+                  />
+                </Tooltip>
+              </>
+            ),
         },
         {
           title: `Tháng ${date.format("MM - YYYY")}`,
           dataIndex: ["elecs", "cur", "value"],
           align: "center",
           key: "elecCur",
-          render: (text, record) => (
-            <>
-              <span
-                style={{
-                  display: "inline-block",
-                  width: "50px",
-                  textAlign: "right",
-                }}
-              >
-                {text}
-              </span>
-              <Tooltip title="Chỉnh sửa">
-                <Button
-                  shape="circle"
-                  type="link"
-                  icon={<EditFilled />}
-                  onClick={() => handleEditClick(record, "elecCur")}
-                />
-              </Tooltip>
-            </>
-          ),
+          render: (text, record) =>
+            record?.elecs && (
+              <>
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: "50px",
+                    textAlign: "right",
+                  }}
+                >
+                  {text}
+                </span>
+                <Tooltip title="Chỉnh sửa">
+                  <Button
+                    shape="circle"
+                    type="link"
+                    icon={<EditFilled />}
+                    onClick={() => handleEditClick(record, "elecCur")}
+                  />
+                </Tooltip>
+              </>
+            ),
         },
       ],
     },
@@ -167,54 +176,56 @@ const ElecWater = () => {
           dataIndex: ["waters", "prev", "value"],
           align: "center",
           key: "waterPrev",
-          render: (text, record) => (
-            <>
-              <span
-                style={{
-                  display: "inline-block",
-                  width: "50px",
-                  textAlign: "right",
-                }}
-              >
-                {text}
-              </span>
-              <Tooltip title="Chỉnh sửa">
-                <Button
-                  shape="circle"
-                  type="link"
-                  icon={<EditFilled />}
-                  onClick={() => handleEditClick(record, "waterPrev")}
-                />
-              </Tooltip>
-            </>
-          ),
+          render: (text, record) =>
+            record?.waters && (
+              <>
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: "50px",
+                    textAlign: "right",
+                  }}
+                >
+                  {text}
+                </span>
+                <Tooltip title="Chỉnh sửa">
+                  <Button
+                    shape="circle"
+                    type="link"
+                    icon={<EditFilled />}
+                    onClick={() => handleEditClick(record, "waterPrev")}
+                  />
+                </Tooltip>
+              </>
+            ),
         },
         {
           title: `Tháng ${date.format("MM - YYYY")}`,
           dataIndex: ["waters", "cur", "value"],
           key: "waterCur",
           align: "center",
-          render: (text, record) => (
-            <>
-              <span
-                style={{
-                  display: "inline-block",
-                  width: "50px",
-                  textAlign: "right",
-                }}
-              >
-                {text}
-              </span>
-              <Tooltip title="Chỉnh sửa">
-                <Button
-                  shape="circle"
-                  type="link"
-                  icon={<EditFilled />}
-                  onClick={() => handleEditClick(record, "waterCur")}
-                />
-              </Tooltip>
-            </>
-          ),
+          render: (text, record) =>
+            record?.waters && (
+              <>
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: "50px",
+                    textAlign: "right",
+                  }}
+                >
+                  {text}
+                </span>
+                <Tooltip title="Chỉnh sửa">
+                  <Button
+                    shape="circle"
+                    type="link"
+                    icon={<EditFilled />}
+                    onClick={() => handleEditClick(record, "waterCur")}
+                  />
+                </Tooltip>
+              </>
+            ),
         },
       ],
     },
@@ -301,16 +312,18 @@ const ElecWater = () => {
         }
         className="customCard"
       >
-        <Table
-          className="customTable"
-          columns={columns}
-          bordered
-          dataSource={records}
-          loading={loading}
-          pagination={false}
-          scroll={{ y: true }}
-          rowKey={(record) => record.roomId}
-        />
+        {houseId && date && (
+          <Table
+            className="customTable"
+            columns={columns}
+            bordered
+            dataSource={records}
+            loading={loading}
+            pagination={false}
+            scroll={{ y: true }}
+            rowKey={(record) => record.roomId}
+          />
+        )}
       </Card>
       <Modal
         className="customModal"
