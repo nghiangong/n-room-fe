@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { decodeToken } from "../utils";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const AuthContext = createContext();
 
@@ -23,7 +24,12 @@ export const AuthProvider = ({ children }) => {
     navigate("/");
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await axios.post("http://localhost:8080/auth/logout", token, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
     localStorage.removeItem("token");
     setToken(null);
   };

@@ -141,7 +141,7 @@ const Invoices = () => {
       ),
       filterIcon: <SearchOutlined />,
       onFilter: (value, record) =>
-        record.name.toLowerCase().includes(value.toLowerCase()),
+        record.room.name.toLowerCase().includes(value.toLowerCase()),
     },
     {
       title: "Tên hóa đơn",

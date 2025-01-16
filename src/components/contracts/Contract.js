@@ -67,6 +67,7 @@ const Contract = ({ contractDetail, houseNames, refresh, close, mode }) => {
       if (mode === "CREATE") {
         await apiClient.post(`/contracts`, values);
         message.success("Tạo mới thành công!");
+        console.log(values);
       } else {
         await apiClient.put(`/contracts/${contractDetail.id}`, values);
         message.success("Lưu thành công!");
@@ -236,7 +237,7 @@ const Contract = ({ contractDetail, houseNames, refresh, close, mode }) => {
                   </Col>
                   <Col span={12}>
                     <Form.Item
-                      name="personalIdNumber"
+                      name={["repTenant", "personalIdNumber"]}
                       label="CCCD"
                       rules={[
                         {
@@ -257,7 +258,7 @@ const Contract = ({ contractDetail, houseNames, refresh, close, mode }) => {
                   </Col>
                   <Col span={12}>
                     <Form.Item
-                      name="phoneNumber"
+                      name={["repTenant", "phoneNumber"]}
                       label="Số điện thoại"
                       rules={[
                         {
